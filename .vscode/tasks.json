@@ -1,0 +1,15 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Build and run main.cpp",
+			"type": "shell",
+			"command": "g++ -std=c++17 -o motorbike_app src/main.cpp src/data_manager.cpp",
+			"args": [],
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": "build"
+		}
+	]
+}

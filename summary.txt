@@ -1,0 +1,65 @@
+Basic Features:
+
+Vai trò người dùng
+Guest: Xem danh sách xe với thông tin hạn chế (hãng, mẫu, dung tích, vị trí); không xem được đánh giá/nhận xét; không được gửi yêu cầu thuê.
+Member: Đăng ký/đăng nhập; đăng xe cho thuê; tìm kiếm và yêu cầu thuê (nếu đủ điều kiện); nạp CP; đánh giá; quản lý hồ sơ cá nhân.
+Admin: Xem tất cả hồ sơ thành viên và danh sách xe không hạn chế.(boss)
+
+
+Đăng ký hồ sơ thành viên
+Thông tin bắt buộc: username, password (phải mạnh e.g., no weak password like “12345” or “password”.), họ tên, email, số điện thoại, loại giấy tờ (CCCD/Hộ chiếu) và số giấy tờ, số giấy phép lái xe và hạn (optional).
+Có thể đăng ký xe máy điện ngay khi đăng ký (hãng, mẫu, màu, dung tích cc, năm sản xuất, biển số).
+Phí đăng ký 20 USD => nhận 20 CP; xếp hạng người thuê mặc định 3.
+
+
+Quản lý hồ sơ
+Xem/cập nhật thông tin (trừ username), đổi mật khẩu.
+Xem/nạp CP (tỷ lệ 1 USD=1 CP, xác thực bằng mật khẩu).
+Xem lịch sử đặt thuê và thống kê xếp hạng.
+
+Đăng xe máy điện
+Mỗi thành viên chỉ được đăng 1 xe.
+Thông tin cần có: khoảng thời gian cho thuê (từ–đến), thành phố (HCMC hoặc Hanoi), giá thuê theo ngày (CP), yêu cầu xếp hạng tối thiểu của người thuê.
+Có thể gỡ đăng bất kỳ lúc nào, trừ khi đã có đặt thuê xác nhận.
+
+
+Tìm kiếm & lọc xe
+Tìm theo ngày và thành phố.
+Hiển thị: hãng, mẫu, dung tích, điểm xếp hạng xe.
+Xem bình luận/điểm trung bình của từng xe.
+Chỉ hiển thị xe phù hợp toàn bộ tiêu chí: + Xếp hạng người thuê hiện tại ≥ yêu cầu
+ 					  + CP đủ chi trả toàn bộ chi phí thuê
+ 					  + Có GPLX còn hiệu lực nếu dung tích > 50cc
+ 					  + Đúng thành phố và còn trống trong ngày đã chọn
+
+
+Yêu cầu thuê và phê duyệt
+Điều kiện gửi yêu cầu: đáp ứng xếp hạng, đủ CP, GPLX hợp lệ nếu > 50cc, không đang thuê xe khác.
+Chủ xe xem yêu cầu và chấp nhận 1 yêu cầu trong mỗi khoảng thời gian.
+Khi chấp nhận:  + Trừ CP của người thuê
+ 		+ Đánh dấu xe “đang được thuê” cho giai đoạn đó
+ 		+ Tự động từ chối yêu cầu chồng lấn
+ 		+ Không được hủy sau khi xác nhận
+
+
+Hoàn chuyến và đánh giá
+Kết thúc giai đoạn thuê: trả xe.
+Người thuê đánh giá xe (1–5 sao + bình luận); chủ xe đánh giá người thuê (1–5 sao + bình luận).
+Điểm được tính trung bình theo thời gian và update liên tục
+Điểm xe phản ánh tình trạng/vận hành (của chủ xe)
+Điểm người thuê phản ánh cách sử dụng xe (của user)
+
+
+Lưu trữ dữ liệu
+Lưu toàn bộ dữ liệu ra file khi thoát ứng dụng.
+Tải dữ liệu từ file khi vào ứng dụng.
+
+CONSTRAINTS
+(1) Credit point balances must never go negative.
+(2) Each member may register only one motorbike and rent only one motorbike at a time.
+(3) Rental requests cannot be cancelled once accepted.
+(4) Members without a valid license (none or expired) cannot view or rent motorbikes above 50 cc.
+
+ASSUMPTIONS
+(1) Các giao dịch nạp tiền CP chỉ được phép thực hiện thông qua mật khẩu.
+(2) Các thành viên không có giấy phép vẫn có thể đăng ký, cho thuê xe và kiếm cp từ việc cho thuê
