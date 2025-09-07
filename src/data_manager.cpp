@@ -23,6 +23,15 @@ namespace DataManager {
             if (isFirstLine) { isFirstLine = false; continue; } // Skip header
             auto tokens = split(line, ',');
             if (tokens.size() < 12) continue;
+            // Kiểm tra các trường số hợp lệ trước khi chuyển đổi
+            bool valid = true;
+            for (int idx : {8,9,10,11}) {
+                if (tokens[idx].empty() || tokens[idx].find_first_not_of("0123456789") != std::string::npos) {
+                    valid = false;
+                    break;
+                }
+            }
+            if (!valid) continue;
             User u;
             u.username = tokens[0];
             u.password = tokens[1];
@@ -45,6 +54,8 @@ namespace DataManager {
 
     void saveUsers(const std::string& filename, const std::vector<User>& users) {
         std::ofstream file(filename);
+        // Ghi dòng tiêu đề (header)
+        file << "username,password,fullName,email,phone,idType,idNumber,licenseNumber,licenseExpiry,role,creditPoints,rating,ownedMotorbikeLicense,rentingMotorbikeLicense\n";
         for (const auto& u : users) {
             file << u.username << ',' << u.password << ',' << u.fullName << ',' << u.email << ','
                  << u.phone << ',' << u.idType << ',' << u.idNumber << ',' << u.licenseNumber << ','
@@ -57,9 +68,20 @@ namespace DataManager {
         std::vector<Motorbike> bikes;
         std::ifstream file(filename);
         std::string line;
+        bool isFirstLine = true;
         while (std::getline(file, line)) {
+            if (isFirstLine) { isFirstLine = false; continue; } // Skip header
             auto tokens = split(line, ',');
             if (tokens.size() < 10) continue;
+            // Kiểm tra các trường số hợp lệ trước khi chuyển đổi
+            bool valid = true;
+            for (int idx : {3,4,8,9}) {
+                if (tokens[idx].empty() || tokens[idx].find_first_not_of("0123456789") != std::string::npos) {
+                    valid = false;
+                    break;
+                }
+            }
+            if (!valid) continue;
             Motorbike m;
             m.brand = tokens[0];
             m.model = tokens[1];

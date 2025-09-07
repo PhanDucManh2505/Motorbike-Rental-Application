@@ -1,3 +1,13 @@
+#include <ctime>
+
+#ifndef DEPOSIT_TRANSACTION_STRUCT
+#define DEPOSIT_TRANSACTION_STRUCT
+// Lịch sử nạp CP
+struct DepositTransaction {
+    int amount;
+    std::time_t timestamp;
+};
+#endif
 #ifndef MODELS_H
 #define MODELS_H
 #include <string>
@@ -58,6 +68,7 @@ struct User {
     std::vector<Rating> ratings;
     std::string ownedMotorbikeLicense; // nếu có
     std::string rentingMotorbikeLicense; // nếu đang thuê
+    std::vector<DepositTransaction> depositHistory;
 };
 
 #endif // MODELS_H

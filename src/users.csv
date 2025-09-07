@@ -1,2 +1,5 @@
-phanducmanh,Manh1234%,Phan Duc Manh,Manh2505@rmit.edu,21212121212,CCCD,111111111111,123123,20050515,1,20,3,,
-1,Manh123!,m,Ma@rmit.vn,1111111111,CCCD,111111111111,1m,20260525,1,90,3,,
+username,password,fullName,email,phone,idType,idNumber,licenseNumber,licenseExpiry,role,creditPoints,rating,ownedMotorbikeLicense,rentingMotorbikeLicense
+u1,Manh123!!,Nguyen Van A,email1@gmail.com,0123456789,CCCD,123456789,123456789,20260101,1,20,3,,
+u2,Manh123!!!,Nguyen Van B,email2@gmail.com,0987654321,CCCD,987654321,987654321,20270101,1,30,4,,
+u3,Manh123!,manh1234,,77777777777,CCCD,777777777777,1,20260525,1,20,3,,
+u4,Manh1234!,a,,777777777,CCCD,777777777777,1,20300525,1,50,3,,
