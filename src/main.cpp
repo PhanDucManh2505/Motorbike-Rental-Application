@@ -1,3 +1,33 @@
+void showGuestMenu() {
+    std::cout << std::endl;
+    std::cout << "========== GUEST MENU ==========" << std::endl;
+    std::cout << "1. View motorbike list" << std::endl;
+    std::cout << "2. Search/filter motorbikes" << std::endl;
+    std::cout << "3. Back to main menu" << std::endl;
+    std::cout << "===============================" << std::endl;
+    std::cout << "Please select an option: ";
+}
+
+void guestMenuLoop() {
+    int choice;
+    do {
+        showGuestMenu();
+        std::cin >> choice;
+        switch (choice) {
+            case 1:
+                std::cout << "[Show motorbike list - coming soon]\n";
+                break;
+            case 2:
+                std::cout << "[Search/filter motorbikes - coming soon]\n";
+                break;
+            case 3:
+                std::cout << "Returning to main menu...\n";
+                break;
+            default:
+                std::cout << "Invalid option. Please try again.\n";
+        }
+    } while (choice != 3);
+}
 #include <regex>
 #include <iostream>
 #include "models.h"
@@ -10,10 +40,10 @@ void showMainMenu() {
     std::cout << "==========================================\n";
     std::cout << "|      MOTORBIKE RENTAL APPLICATION       |\n";
     std::cout << "==========================================\n";
-    std::cout << "| 1. Guest                               |\n";
-    std::cout << "| 2. Member                              |\n";
-    std::cout << "| 3. Admin                               |\n";
-    std::cout << "| 4. Exit                                |\n";
+    std::cout << "| 1. Guest                                |\n";
+    std::cout << "| 2. Member                               |\n";
+    std::cout << "| 3. Admin                                |\n";
+    std::cout << "| 4. Exit                                 |\n";
     std::cout << "==========================================\n";
     std::cout << "Please select an option: ";
 }
@@ -124,7 +154,7 @@ int main() {
         std::cin >> choice;
         switch (choice) {
             case 1:
-                std::cout << "[Guest menu - coming soon]\n" << std::endl;
+                guestMenuLoop();
                 break;
             case 2:
                 std::cout << "[Member menu - coming soon]\n" << std::endl;
