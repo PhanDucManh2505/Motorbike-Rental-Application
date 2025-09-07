@@ -18,7 +18,9 @@ namespace DataManager {
         std::vector<User> users;
         std::ifstream file(filename);
         std::string line;
+        bool isFirstLine = true;
         while (std::getline(file, line)) {
+            if (isFirstLine) { isFirstLine = false; continue; } // Skip header
             auto tokens = split(line, ',');
             if (tokens.size() < 12) continue;
             User u;

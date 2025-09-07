@@ -1,10 +1,28 @@
+#include <regex>
+#include <iostream>
+#include "models.h"
+#include "data_manager.h"
+#include <vector>
+#include <limits>
+
+// Function prototype
+void registerMember();
+#include <regex>
+#include <iostream>
+#include "models.h"
+#include "data_manager.h"
+#include <vector>
+#include <limits>
+
 void showGuestMenu() {
     std::cout << std::endl;
-    std::cout << "========== GUEST MENU ==========" << std::endl;
-    std::cout << "1. View motorbike list" << std::endl;
-    std::cout << "2. Search/filter motorbikes" << std::endl;
-    std::cout << "3. Back to main menu" << std::endl;
-    std::cout << "===============================" << std::endl;
+    std::cout << "===============================================|" << std::endl;
+    std::cout << "|                GUEST MENU                    |" << std::endl;
+    std::cout << "===============================================|" << std::endl;
+    std::cout << "| 1. Register as a new member                  |" << std::endl;
+    std::cout << "| 2. View motorbike list                       |" << std::endl;
+    std::cout << "| 3. Back to main menu                         |" << std::endl;
+    std::cout << "===============================================|" << std::endl;
     std::cout << "Please select an option: ";
 }
 
@@ -15,10 +33,10 @@ void guestMenuLoop() {
         std::cin >> choice;
         switch (choice) {
             case 1:
-                std::cout << "[Show motorbike list - coming soon]\n";
+                registerMember();
                 break;
             case 2:
-                std::cout << "[Search/filter motorbikes - coming soon]\n";
+                std::cout << "[Show motorbike list - coming soon]\n";
                 break;
             case 3:
                 std::cout << "Returning to main menu...\n";
@@ -28,12 +46,7 @@ void guestMenuLoop() {
         }
     } while (choice != 3);
 }
-#include <regex>
-#include <iostream>
-#include "models.h"
-#include "data_manager.h"
-#include <vector>
-#include <limits>
+
 
 void showMainMenu() {
     std::cout << "\n";
@@ -129,22 +142,100 @@ void registerMember() {
         if (idChoice == "2") { u.idType = "Passport"; break; }
         std::cout << "Invalid choice! Please enter 1 or 2.\n";
     }
-    std::cout << "ID number: ";
-    std::getline(std::cin, u.idNumber);
+    // ID number validation
+    while (true) {
+        std::cout << "ID number: ";
+        std::getline(std::cin, u.idNumber);
+        bool valid = true;
+        std::string reason;
+        if (u.idType == "CCCD") {
+            if (u.idNumber.length() != 12) { valid = false; reason = "CCCD must be exactly 12 digits."; }
+            for (char c : u.idNumber) if (!isdigit(c)) { valid = false; reason = "CCCD must contain only digits."; break; }
+        } else if (u.idType == "Passport") {
+            if (u.idNumber.length() != 8) { valid = false; reason = "Passport must be exactly 8 characters."; }
+            else if (!isalpha(u.idNumber[0])) { valid = false; reason = "Passport must start with a letter."; }
+            else {
+                for (size_t i = 1; i < u.idNumber.length(); ++i) if (!isdigit(u.idNumber[i])) { valid = false; reason = "Passport: after the first letter, all must be digits."; break; }
+            }
+        }
+        if (valid) break;
+        std::cout << "Invalid ID number! " << reason << "\n";
+    }
     std::cout << "License number (optional): ";
     std::getline(std::cin, u.licenseNumber);
-    std::cout << "License expiry (YYYYMMDD, 0 if none): ";
-    std::string expiryStr;
-    std::getline(std::cin, expiryStr);
-    u.licenseExpiry = std::stol(expiryStr);
+    // License expiry validation (DD/MM/YYYY)
+    while (true) {
+        std::cout << "License expiry (DD/MM/YYYY): ";
+        std::string expiryStr;
+        std::getline(std::cin, expiryStr);
+        if (expiryStr.length() != 10 || expiryStr[2] != '/' || expiryStr[5] != '/') {
+            std::cout << "Invalid date format! Must be DD/MM/YYYY.\n";
+            continue;
+        }
+        std::string dayStr = expiryStr.substr(0,2);
+        std::string monthStr = expiryStr.substr(3,2);
+        std::string yearStr = expiryStr.substr(6,4);
+        bool allDigits = true;
+        for (char c : dayStr+monthStr+yearStr) if (!isdigit(c)) allDigits = false;
+        if (!allDigits) {
+            std::cout << "Invalid date format! Day, month, year must be digits.\n";
+            continue;
+        }
+        int day = std::stoi(dayStr);
+        int month = std::stoi(monthStr);
+        int year = std::stoi(yearStr);
+        bool valid = true;
+        std::string reason;
+        if (year < 1900 || year > 2100) { valid = false; reason = "Year must be between 1900 and 2100."; }
+        else if (month < 1 || month > 12) { valid = false; reason = "Month must be between 1 and 12."; }
+        else {
+            int maxDay = 31;
+            if (month == 2) {
+                bool leap = (year%4==0 && (year%100!=0 || year%400==0));
+                maxDay = leap ? 29 : 28;
+            } else if (month==4 || month==6 || month==9 || month==11) maxDay = 30;
+            if (day < 1 || day > maxDay) { valid = false; reason = "Invalid day for the given month/year."; }
+        }
+        // Check not in the past (today: 07/09/2025)
+        long inputDate = std::stol(yearStr+monthStr+dayStr);
+        long today = 20250907;
+        if (valid && inputDate < today) {
+            valid = false;
+            reason = "License expiry cannot be in the past.";
+        }
+        if (valid) {
+            // Lưu lại theo dạng YYYYMMDD để tiện xử lý nội bộ
+            u.licenseExpiry = inputDate;
+            break;
+        }
+        std::cout << "Invalid date! " << reason << "\n";
+    }
+    int deposit = 0;
+    while (true) {
+        std::cout << "Please enter the amount you want to deposit (minimum $20): ";
+        std::string depositStr;
+        std::getline(std::cin, depositStr);
+        try {
+            deposit = std::stoi(depositStr);
+        } catch (...) {
+            std::cout << "Invalid input! Please enter a valid number.\n";
+            continue;
+        }
+        if (deposit < 20) {
+            std::cout << "You must deposit at least $20 to register.\n";
+            continue;
+        }
+        break;
+    }
+    std::cout << "Successfully deposited $" << deposit << ". You will receive " << deposit << " CP.\n";
     u.role = UserRole::Member;
-    u.creditPoints = 20; // Registration fee
+    u.creditPoints = deposit;
     u.rating = 3; // Default rating
     u.ownedMotorbikeLicense = "";
     u.rentingMotorbikeLicense = "";
     users.push_back(u);
     DataManager::saveUsers("users.csv", users);
-    std::cout << "Registration successful! You received 20 CP.\n";
+    std::cout << "Registration successful! Default renter rating is 3.\n";
 }
 
 int main() {
