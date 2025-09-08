@@ -41,10 +41,10 @@ namespace DataManager {
             u.idType = tokens[5];
             u.idNumber = tokens[6];
             u.licenseNumber = tokens[7];
-            u.licenseExpiry = std::stol(tokens[8]);
-            u.role = static_cast<UserRole>(std::stoi(tokens[9]));
-            u.creditPoints = std::stoi(tokens[10]);
-            u.rating = std::stoi(tokens[11]);
+            u.licenseExpiry = tokens[8].empty() || tokens[8].find_first_not_of("0123456789") != std::string::npos ? 0 : std::stol(tokens[8]);
+            u.role = tokens[9].empty() || tokens[9].find_first_not_of("0123456789") != std::string::npos ? UserRole::Member : static_cast<UserRole>(std::stoi(tokens[9]));
+            u.creditPoints = tokens[10].empty() || tokens[10].find_first_not_of("0123456789") != std::string::npos ? 0 : std::stoi(tokens[10]);
+            u.rating = tokens[11].empty() || tokens[11].find_first_not_of("0123456789") != std::string::npos ? 0 : std::stoi(tokens[11]);
             if (tokens.size() > 12) u.ownedMotorbikeLicense = tokens[12];
             if (tokens.size() > 13) u.rentingMotorbikeLicense = tokens[13];
             users.push_back(u);
@@ -86,13 +86,13 @@ namespace DataManager {
             m.brand = tokens[0];
             m.model = tokens[1];
             m.color = tokens[2];
-            m.capacityCC = std::stoi(tokens[3]);
-            m.year = std::stoi(tokens[4]);
+            m.capacityCC = tokens[3].empty() || tokens[3].find_first_not_of("0123456789") != std::string::npos ? 0 : std::stoi(tokens[3]);
+            m.year = tokens[4].empty() || tokens[4].find_first_not_of("0123456789") != std::string::npos ? 0 : std::stoi(tokens[4]);
             m.licensePlate = tokens[5];
             m.ownerUsername = tokens[6];
             m.city = tokens[7];
-            m.pricePerDayCP = std::stoi(tokens[8]);
-            m.minRenterRating = std::stoi(tokens[9]);
+            m.pricePerDayCP = tokens[8].empty() || tokens[8].find_first_not_of("0123456789") != std::string::npos ? 0 : std::stoi(tokens[8]);
+            m.minRenterRating = tokens[9].empty() || tokens[9].find_first_not_of("0123456789") != std::string::npos ? 0 : std::stoi(tokens[9]);
             // ratings, isAvailable, bookedPeriods: not loaded for simplicity
             bikes.push_back(m);
         }
@@ -101,6 +101,8 @@ namespace DataManager {
 
     void saveMotorbikes(const std::string& filename, const std::vector<Motorbike>& bikes) {
         std::ofstream file(filename);
+        // Write header
+        file << "Brand,Model,Color,CapacityCC,Year,LicensePlate,OwnerUsername,City,PricePerDayCP,MinRenterRating\n";
         for (const auto& m : bikes) {
             file << m.brand << ',' << m.model << ',' << m.color << ',' << m.capacityCC << ','
                  << m.year << ',' << m.licensePlate << ',' << m.ownerUsername << ',' << m.city << ','
@@ -118,8 +120,8 @@ namespace DataManager {
             RentalRequest r;
             r.renterUsername = tokens[0];
             r.motorbikeLicensePlate = tokens[1];
-            r.fromDate = std::stol(tokens[2]);
-            r.toDate = std::stol(tokens[3]);
+            r.fromDate = tokens[2].empty() || tokens[2].find_first_not_of("0123456789") != std::string::npos ? 0 : std::stol(tokens[2]);
+            r.toDate = tokens[3].empty() || tokens[3].find_first_not_of("0123456789") != std::string::npos ? 0 : std::stol(tokens[3]);
             r.isAccepted = (tokens[4] == "1");
             reqs.push_back(r);
         }

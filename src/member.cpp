@@ -1,10 +1,16 @@
-#include <cctype>
-#include <algorithm>
+// Standard library includes
+#include <iostream>
 #include <vector>
 #include <string>
-#include <string>
 #include <algorithm>
 #include <cctype>
+#include <limits>
+#include <iomanip>
+
+// Project includes
+#include "member.h"
+#include "models.h"
+#include "data_manager.h"
 std::string trim(const std::string& s) {
     size_t start = s.find_first_not_of(" \t\n\r");
     size_t end = s.find_last_not_of(" \t\n\r");
@@ -20,6 +26,26 @@ int safeStringToInt(const std::string& s) {
     int val = 0;
     for (char c : s) val = val * 10 + (c - '0');
     return val;
+}
+
+int safeStoi(const std::string& s, int defaultVal = 0) {
+    if (s.empty() || !std::all_of(s.begin(), s.end(), ::isdigit)){
+        return defaultVal;
+    }
+    int val = 0;
+    for (char c : s) val = val * 10 + (c - '0');
+    return val;
+}
+
+long safeStol(const std::string& s, long defaultVal = 0) {
+    if (s.empty() || !std::all_of(s.begin(), s.end(), ::isdigit)) {
+        return defaultVal;
+    }
+    try {
+        return std::stol(s);
+    } catch (...) {
+        return defaultVal;
+    }
 }
 
 bool isValidPhone(const std::string& s) {
@@ -81,6 +107,7 @@ void registerMember() {
         std::cout << "Password: ";
         std::getline(std::cin, u.password);
         u.password = trim(u.password);
+        std::vector<std::string> reasons = getPasswordWeaknesses(u.password);
         bool duplicatePw = false;
         for (const auto& user : users) {
             if (user.password == u.password) {
@@ -88,7 +115,6 @@ void registerMember() {
                 break;
             }
         }
-        std::vector<std::string> reasons = getPasswordWeaknesses(u.password);
         if (duplicatePw) reasons.push_back("This password is already used, please choose another!");
         if (reasons.empty()) break;
         std::cout << "Password is weak or duplicated!\n";
@@ -171,9 +197,8 @@ void registerMember() {
             if (day < 1 || day > maxDay) { valid = false; reason = "Invalid day for the given month/year."; }
         }
         // Check not in the past (today: 07/09/2025)
-        long inputDate = 0;
-        std::string ymd = yearStr+monthStr+dayStr;
-        for (char c : ymd) inputDate = inputDate * 10 + (c - '0');
+        std::string ymd = yearStr + monthStr + dayStr;
+        long inputDate = safeStol(ymd, 0);
         long today = 20250907;
         if (valid && inputDate < today) {
             valid = false;
@@ -236,11 +261,11 @@ void showMemberMenu() {
     std::cout << "===============================================|" << std::endl;
     std::cout << "| 1. Register a motorbike for rent             |" << std::endl;
     std::cout << "| 2. Search and rent a motorbike               |" << std::endl;
-    std::cout << "| 3. View all motorbikes                       |" << std::endl;
-    std::cout << "| 4. Manage profile                            |" << std::endl;
-    std::cout << "| 5. View rental history & ratings             |" << std::endl;
-    std::cout << "| 6. Unregister your motorbike                 |" << std::endl;
-    std::cout << "| 7. Approve rental requests (for owners)      |" << std::endl;
+    std::cout << "| 3. Manage profile                            |" << std::endl;
+    std::cout << "| 4. View rental history & ratings             |" << std::endl;
+    std::cout << "| 5. Unregister your motorbike                 |" << std::endl;
+    std::cout << "| 6. Approve rental requests (for owners)      |" << std::endl;
+    std::cout << "| 7. Cancel/Return rented motorbike            |" << std::endl;
     std::cout << "| 8. Logout                                    |" << std::endl;
     std::cout << "===============================================|" << std::endl;
     std::cout << "Please select an option: ";
@@ -252,12 +277,12 @@ void memberMenuLoop(const std::string& username) {
         showMemberMenu();
         std::string choiceStr;
         std::getline(std::cin, choiceStr);
-        if (!choiceStr.empty() && std::all_of(choiceStr.begin(), choiceStr.end(), ::isdigit)) {
-            choice = std::stoi(choiceStr);
+        if (!choiceStr.empty() && isAllDigits(choiceStr)) {
+            choice = safeStringToInt(choiceStr);
         } else {
             choice = 0;
         }
-        switch (choice) {
+    switch (choice) {
             case 1: {
                 // Register a motorbike for rent
                 std::vector<Motorbike> bikes = DataManager::loadMotorbikes("motorbikes.csv");
@@ -271,6 +296,9 @@ void memberMenuLoop(const std::string& username) {
                 }
                 if (alreadyRegistered) {
                     std::cout << "You have already registered a motorbike. Only one motorbike per member is allowed!\n";
+                    std::cout << "Press Enter to continue...";
+                    std::string dummy;
+                    std::getline(std::cin, dummy);
                     break;
                 }
                 Motorbike m;
@@ -286,8 +314,8 @@ void memberMenuLoop(const std::string& username) {
                     std::cout << "Capacity (CC): ";
                     std::string ccStr;
                     std::getline(std::cin, ccStr);
-                    if (!ccStr.empty() && std::all_of(ccStr.begin(), ccStr.end(), ::isdigit)) {
-                        m.capacityCC = std::stoi(ccStr);
+                    if (!ccStr.empty() && isAllDigits(ccStr)) {
+                        m.capacityCC = safeStringToInt(ccStr);
                         break;
                     } else {
                         std::cout << "Invalid input! Please enter a number.\n";
@@ -298,8 +326,8 @@ void memberMenuLoop(const std::string& username) {
                     std::cout << "Year: ";
                     std::string yearStr;
                     std::getline(std::cin, yearStr);
-                    if (!yearStr.empty() && std::all_of(yearStr.begin(), yearStr.end(), ::isdigit)) {
-                        m.year = std::stoi(yearStr);
+                    if (!yearStr.empty() && isAllDigits(yearStr)) {
+                        m.year = safeStringToInt(yearStr);
                         break;
                     } else {
                         std::cout << "Invalid input! Please enter a number.\n";
@@ -309,6 +337,7 @@ void memberMenuLoop(const std::string& username) {
                 while (true) {
                     std::cout << "License plate: ";
                     std::getline(std::cin, m.licensePlate);
+                    m.licensePlate = trim(m.licensePlate);
                     bool duplicate = false;
                     for (const auto& b : bikes) {
                         if (b.licensePlate == m.licensePlate) {
@@ -316,43 +345,52 @@ void memberMenuLoop(const std::string& username) {
                             break;
                         }
                     }
-                    if (duplicate) {
-                        std::cout << "This license plate is already registered!\n";
-                    } else if (!m.licensePlate.empty()) {
-                        break;
-                    } else {
-                        std::cout << "License plate cannot be empty!\n";
+                    // Kiểm tra hợp lệ: không rỗng, độ dài 5-10, chỉ chữ/số, không trùng
+                    bool valid = true;
+                    std::string reason;
+                    if (m.licensePlate.empty()) { valid = false; reason = "License plate cannot be empty."; }
+                    else if (m.licensePlate.length() < 5 || m.licensePlate.length() > 10) { valid = false; reason = "License plate must be 5-10 characters."; }
+                    else if (!std::all_of(m.licensePlate.begin(), m.licensePlate.end(), [](char c){ return std::isalnum(static_cast<unsigned char>(c)); })) { valid = false; reason = "License plate must contain only letters and digits."; }
+                    else if (duplicate) { valid = false; reason = "License plate already exists."; }
+                    if (!valid) {
+                        std::cout << "Invalid license plate! " << reason << "\n";
+                        continue;
                     }
+                    break;
                 }
-                m.ownerUsername = username;
-                std::cout << "City: ";
-                std::getline(std::cin, m.city);
-                // Price per day
+                // City
+                while (true) {
+                    std::cout << "City [1] HCMC   [2] Hanoi: ";
+                    std::string cityChoice;
+                    std::getline(std::cin, cityChoice);
+                    if (cityChoice == "1") { m.city = "HCMC"; break; }
+                    if (cityChoice == "2") { m.city = "HANOI"; break; }
+                    std::cout << "Invalid choice! Please enter 1 or 2.\n";
+                }
+                // PricePerDayCP
                 while (true) {
                     std::cout << "Price per day (CP): ";
                     std::string priceStr;
                     std::getline(std::cin, priceStr);
-                    if (!priceStr.empty() && std::all_of(priceStr.begin(), priceStr.end(), ::isdigit)) {
-                        m.pricePerDayCP = std::stoi(priceStr);
-                        break;
-                    } else {
-                        std::cout << "Invalid input! Please enter a number.\n";
+                    if (!priceStr.empty() && isAllDigits(priceStr)) {
+                        m.pricePerDayCP = safeStringToInt(priceStr);
+                        if (m.pricePerDayCP > 0) break;
                     }
+                    std::cout << "Invalid input! Please enter a positive number.\n";
                 }
-                // Minimum renter rating
+                // MinRenterRating
                 while (true) {
                     std::cout << "Minimum renter rating (1-5): ";
-                    std::string minRatingStr;
-                    std::getline(std::cin, minRatingStr);
-                    if (!minRatingStr.empty() && std::all_of(minRatingStr.begin(), minRatingStr.end(), ::isdigit)) {
-                        int minRating = std::stoi(minRatingStr);
-                        if (minRating >= 1 && minRating <= 5) {
-                            m.minRenterRating = minRating;
-                            break;
-                        }
+                    std::string ratingStr;
+                    std::getline(std::cin, ratingStr);
+                    if (!ratingStr.empty() && isAllDigits(ratingStr)) {
+                        m.minRenterRating = safeStringToInt(ratingStr);
+                        if (m.minRenterRating >= 1 && m.minRenterRating <= 5) break;
                     }
                     std::cout << "Invalid input! Please enter a number from 1 to 5.\n";
                 }
+                // Gán ownerUsername
+                m.ownerUsername = username;
                 bikes.push_back(m);
                 DataManager::saveMotorbikes("motorbikes.csv", bikes);
                 std::cout << "Motorbike registered successfully!\n";
@@ -371,53 +409,57 @@ void memberMenuLoop(const std::string& username) {
                 }
                 std::string dateStr, city;
                 long searchDate = 0;
-                // Nhập ngày thuê
+                // Chọn thành phố hoặc xem tất cả xe trước
                 while (true) {
-                    std::cout << "Enter rental date (DD/MM/YYYY): ";
-                    std::getline(std::cin, dateStr);
-                    if (dateStr.length() == 10 && dateStr[2] == '/' && dateStr[5] == '/') {
-                        std::string dayStr = dateStr.substr(0,2);
-                        std::string monthStr = dateStr.substr(3,2);
-                        std::string yearStr = dateStr.substr(6,4);
-                        if (isAllDigits(dayStr+monthStr+yearStr)) {
-                            int day = safeStringToInt(dayStr);
-                            int month = safeStringToInt(monthStr);
-                            int year = safeStringToInt(yearStr);
-                            bool valid = true;
-                            if (year < 1900 || year > 2100) valid = false;
-                            else if (month < 1 || month > 12) valid = false;
-                            else {
-                                int maxDay = 31;
-                                if (month == 2) {
-                                    bool leap = (year%4==0 && (year%100!=0 || year%400==0));
-                                    maxDay = leap ? 29 : 28;
-                                } else if (month==4 || month==6 || month==9 || month==11) maxDay = 30;
-                                if (day < 1 || day > maxDay) valid = false;
-                            }
-                            if (valid) {
-                                std::string ymd = yearStr+monthStr+dayStr;
-                                searchDate = 0;
-                                for (char c : ymd) searchDate = searchDate * 10 + (c - '0');
-                                break;
+                    std::cout << "Select city: [1] HCMC   [2] Hanoi   [3] View all bikes. Please select (1/2/3): ";
+                    std::string cityChoice;
+                    std::getline(std::cin, cityChoice);
+                    if (cityChoice == "1") { city = "HCMC"; break; }
+                    if (cityChoice == "2") { city = "HANOI"; break; }
+                    if (cityChoice == "3") { city = "ALL"; break; }
+                    std::cout << "Invalid choice! Please enter 1, 2 hoặc 3.\n";
+                }
+                // Nếu chọn 1 hoặc 2 thì mới hỏi ngày thuê
+                if (city == "HCMC" || city == "HANOI") {
+                    while (true) {
+                        std::cout << "Enter rental date (DD/MM/YYYY): ";
+                        std::getline(std::cin, dateStr);
+                        bool valid = false;
+                        if (dateStr.length() == 10 && dateStr[2] == '/' && dateStr[5] == '/') {
+                            std::string dayStr = dateStr.substr(0,2);
+                            std::string monthStr = dateStr.substr(3,2);
+                            std::string yearStr = dateStr.substr(6,4);
+                            if (isAllDigits(dayStr) && isAllDigits(monthStr) && isAllDigits(yearStr)) {
+                                int day = safeStringToInt(dayStr);
+                                int month = safeStringToInt(monthStr);
+                                int year = safeStringToInt(yearStr);
+                                if (year >= 1900 && year <= 2100 && month >= 1 && month <= 12) {
+                                    int maxDay = 31;
+                                    if (month == 2) {
+                                        bool leap = (year%4==0 && (year%100!=0 || year%400==0));
+                                        maxDay = leap ? 29 : 28;
+                                    } else if (month==4 || month==6 || month==9 || month==11) maxDay = 30;
+                                    if (day >= 1 && day <= maxDay) {
+                                        std::string ymd = yearStr + monthStr + dayStr;
+                                        searchDate = safeStol(ymd, 0);
+                                        valid = true;
+                                    }
+                                }
                             }
                         }
+                        if (valid) break;
+                        std::cout << "Invalid date format! Please enter DD/MM/YYYY.\n";
                     }
-                    std::cout << "Invalid date format! Please enter DD/MM/YYYY.\n";
-                }
-                // Nhập thành phố
-                while (true) {
-                    std::cout << "Enter city (HCMC/Hanoi): ";
-                    std::getline(std::cin, city);
-                    for (auto& c : city) c = toupper(c);
-                    if (city == "HCMC" || city == "HANOI") break;
-                    std::cout << "Invalid city! Please enter HCMC or Hanoi.\n";
+                } else {
+                    // Nếu chọn xem tất cả xe thì đặt searchDate = 0 (không lọc theo ngày)
+                    searchDate = 0;
                 }
                 std::vector<Motorbike> bikes = DataManager::loadMotorbikes("motorbikes.csv");
                 std::vector<RentalRequest> reqs = DataManager::loadRentalRequests("rental_requests.csv");
                 // Lọc xe phù hợp
                 std::vector<const Motorbike*> availableBikes;
                 for (const auto& m : bikes) {
-                    if (m.city != city) continue;
+                    if (city != "ALL" && m.city != city) continue;
                     if (currentUser->rating < m.minRenterRating) continue;
                     if (currentUser->creditPoints < m.pricePerDayCP || currentUser->creditPoints - m.pricePerDayCP < 0) continue;
                     if (m.capacityCC > 50 && (currentUser->licenseNumber.empty() || currentUser->licenseExpiry < searchDate)) continue;
@@ -437,30 +479,60 @@ void memberMenuLoop(const std::string& username) {
                     break;
                 }
                 std::cout << "\n--- Available Motorbikes ---\n";
-                std::cout << "-------------------------------------------------------------------------------------------------------------\n";
-                std::cout << "| # | Brand      | Model         | Color    | CC   | Year | Plate         | Price | MinRating |\n";
-                std::cout << "-------------------------------------------------------------------------------------------------------------\n";
+                std::cout << "+----+------------+---------------+----------+-----+------+---------------+-------+-----------+\n";
+                std::cout << "| #  | Brand      | Model         | Color    | CC  | Year | Plate         | Price | MinRating |\n";
+                std::cout << "+----+------------+---------------+----------+-----+------+---------------+-------+-----------+\n";
                 int idx = 1;
                 for (const auto* m : availableBikes) {
-                    std::cout << "| " << std::setw(2) << idx
-                              << " | " << std::setw(10) << std::left << m->brand
+                    std::cout << "| " << std::setw(2) << std::right << idx << " "
+                              << "| " << std::setw(10) << std::left << m->brand
                               << " | " << std::setw(13) << std::left << m->model
-                              << " | " << std::setw(8) << std::left << m->color
-                              << " | " << std::setw(5) << m->capacityCC
-                              << " | " << std::setw(4) << m->year
-                              << " | " << std::setw(13) << m->licensePlate
-                              << " | " << std::setw(5) << m->pricePerDayCP
-                              << " | " << std::setw(9) << m->minRenterRating << "|\n";
+                              << "| " << std::setw(8) << std::left << m->color
+                              << "| " << std::setw(3) << std::right << m->capacityCC << " "
+                              << "| " << std::setw(4) << std::right << m->year << " "
+                              << "| " << std::setw(13) << std::left << m->licensePlate
+                              << "| " << std::setw(5) << std::right << m->pricePerDayCP << "  "
+                              << "| " << std::setw(9) << std::right << m->minRenterRating << "  |\n";
+                    // Hiển thị đánh giá trung bình và 1-2 bình luận gần nhất (nếu có)
+                    if (!m->ratings.empty()) {
+                        double avg = 0;
+                        for (const auto& r : m->ratings) avg += r.score;
+                        avg /= m->ratings.size();
+                        std::cout << "    Average rating: " << std::fixed << std::setprecision(2) << avg << "/5\n";
+                        int showCount = std::min(2, (int)m->ratings.size());
+                        for (int i = (int)m->ratings.size() - showCount; i < (int)m->ratings.size(); ++i) {
+                            std::cout << "    - [" << m->ratings[i].score << "/5] " << m->ratings[i].comment << " (by " << m->ratings[i].reviewerUsername << ")\n";
+                        }
+                    } else {
+                        std::cout << "    No ratings yet.\n";
+                    }
                     idx++;
                 }
-                std::cout << "-------------------------------------------------------------------------------------------------------------\n";
-                std::cout << "Enter the number of the motorbike to rent (0 to cancel): ";
-                std::string sel;
-                std::getline(std::cin, sel);
-                if (sel == "0" || sel.empty()) break;
-                int selIdx = std::stoi(sel) - 1;
+                std::cout << "+----+------------+---------------+----------+-----+------+---------------+-------+-----------+\n";
+                int selIdx = -1;
+                while (true) {
+                    std::cout << "Enter the number of the motorbike to rent (0 to cancel): ";
+                    std::string sel;
+                    std::getline(std::cin, sel);
+                    if (sel.empty() || sel == "0") {
+                        std::cout << "Rental request cancelled.\n";
+                        selIdx = -1;
+                        break;
+                    }
+                    if (!isAllDigits(sel)) {
+                        std::cout << "Invalid selection. Please enter a valid number.\n";
+                        continue;
+                    }
+                    selIdx = safeStringToInt(sel);
+                    if (selIdx < 1 || selIdx > (int)availableBikes.size()) {
+                        std::cout << "Invalid selection. Please enter a number from 1 to " << availableBikes.size() << ".\n";
+                        continue;
+                    }
+                    selIdx -= 1; // convert to 0-based index
+                    break;
+                }
                 if (selIdx < 0 || selIdx >= (int)availableBikes.size()) {
-                    std::cout << "Invalid selection.\n";
+                    // User cancelled or invalid, do not proceed
                     break;
                 }
                 const Motorbike* selected = availableBikes[selIdx];
@@ -494,40 +566,25 @@ void memberMenuLoop(const std::string& username) {
                 break;
             }
             case 3: {
-                std::vector<Motorbike> bikes = DataManager::loadMotorbikes("motorbikes.csv");
-                if (bikes.empty()) {
-                    std::cout << "\nNo motorbikes found in the system.\n";
-                } else {
-                    std::cout << "\n--- All Motorbikes in System ---\n";
-                    std::cout << "-------------------------------------------------------------------------------------------------------------\n";
-                    std::cout << "| Brand      | Model         | Color    | CC   | Year | Plate         | Owner      | City   | Price | MinRating |\n";
-                    std::cout << "-------------------------------------------------------------------------------------------------------------\n";
-                    for (const auto& m : bikes) {
-                        std::cout << "| " << std::setw(10) << std::left << m.brand
-                                  << " | " << std::setw(13) << std::left << m.model
-                                  << " | " << std::setw(8) << std::left << m.color
-                                  << " | " << std::setw(5) << m.capacityCC
-                                  << " | " << std::setw(4) << m.year
-                                  << " | " << std::setw(13) << m.licensePlate
-                                  << " | " << std::setw(10) << m.ownerUsername
-                                  << " | " << std::setw(6) << m.city
-                                  << " | " << std::setw(5) << m.pricePerDayCP
-                                  << " | " << std::setw(9) << m.minRenterRating << "|\n";
-                    }
-                    std::cout << "-------------------------------------------------------------------------------------------------------------\n";
-                }
-                break;
-            }
-            case 4: {
+                // Manage profile
                 std::vector<User> users = DataManager::loadUsers("users.csv");
                 User* currentUser = nullptr;
                 for (auto& u : users) if (u.username == username) { currentUser = &u; break; }
                 if (!currentUser) { std::cout << "User not found!\n"; break; }
                 while (true) {
-                    std::cout << "\n--- Manage Profile ---\n";
-                    std::cout << "1. View profile\n2. Update profile\n3. Change password\n4. Deposit credit points\n5. View deposit history\n6. Back\nSelect option: ";
+                    std::cout << "\n========================================\n";
+                    std::cout << "|         MANAGE PROFILE MENU             |\n";
+                    std::cout << "========================================\n";
+                    std::cout << "| 1. View profile                         |\n";
+                    std::cout << "| 2. Update profile                       |\n";
+                    std::cout << "| 3. Change password                      |\n";
+                    std::cout << "| 4. Deposit credit points                |\n";
+                    std::cout << "| 5. View deposit history                 |\n";
+                    std::cout << "| 6. Back                                 |\n";
+                    std::cout << "========================================\n";
+                    std::cout << "Select option: ";
                     std::string opt; std::getline(std::cin, opt);
-                    if (opt == "1") {
+                    if (opt == "1") { 
                         std::cout << "\n--- Profile ---\n";
                         std::cout << "Username: " << currentUser->username << "\n";
                         std::cout << "Full name: " << currentUser->fullName << "\n";
@@ -537,6 +594,8 @@ void memberMenuLoop(const std::string& username) {
                         std::cout << "License: " << currentUser->licenseNumber << ", Expiry: " << currentUser->licenseExpiry << "\n";
                         std::cout << "Credit points: " << currentUser->creditPoints << "\n";
                         std::cout << "Rating: " << currentUser->rating << "\n";
+                        std::cout << "\nPress Enter to continue...";
+                        std::string dummy; std::getline(std::cin, dummy);
                     } else if (opt == "2") {
                         std::cout << "Update full name (current: " << currentUser->fullName << "): ";
                         std::string newName; std::getline(std::cin, newName);
@@ -592,6 +651,8 @@ void memberMenuLoop(const std::string& username) {
                                 std::cout << buf << ": +" << tx.amount << " CP\n";
                             }
                         }
+                        std::cout << "Press Enter to continue...";
+                        std::string dummy; std::getline(std::cin, dummy);
                     } else if (opt == "6") {
                         break;
                     } else {
@@ -600,7 +661,7 @@ void memberMenuLoop(const std::string& username) {
                 }
                 break;
             }
-            case 5: {
+            case 4: {
                 // View rental history & ratings
                 std::vector<RentalRequest> reqs = DataManager::loadRentalRequests("rental_requests.csv");
                 std::vector<Motorbike> bikes = DataManager::loadMotorbikes("motorbikes.csv");
@@ -663,10 +724,8 @@ void memberMenuLoop(const std::string& username) {
                                     while (true) {
                                         std::cout << "Rate the motorbike (1-5): ";
                                         std::string s; std::getline(std::cin, s);
-                                        if (!s.empty() && std::all_of(s.begin(), s.end(), ::isdigit)) {
-                                            score = std::stoi(s);
-                                            if (score >= 1 && score <= 5) break;
-                                        }
+                                        score = safeStoi(s);
+                                        if (score >= 1 && score <= 5) break;
                                         std::cout << "Invalid score!\n";
                                     }
                                     std::cout << "Comment for the motorbike: ";
@@ -680,7 +739,7 @@ void memberMenuLoop(const std::string& username) {
                                             std::cout << "Rate the owner (1-5): ";
                                             std::string s; std::getline(std::cin, s);
                                             if (!s.empty() && std::all_of(s.begin(), s.end(), ::isdigit)) {
-                                                ownerScore = std::stoi(s);
+                                                ownerScore = safeStoi(s);
                                                 if (ownerScore >= 1 && ownerScore <= 5) break;
                                             }
                                             std::cout << "Invalid score!\n";
@@ -708,7 +767,7 @@ void memberMenuLoop(const std::string& username) {
                 if (!found) std::cout << "No rental history found.\n";
                 break;
             }
-            case 6: {
+            case 5: {
                 // Unregister your motorbike
                 std::vector<Motorbike> bikes = DataManager::loadMotorbikes("motorbikes.csv");
                 std::vector<RentalRequest> reqs = DataManager::loadRentalRequests("rental_requests.csv");
@@ -730,7 +789,7 @@ void memberMenuLoop(const std::string& username) {
                     std::cout << "Cannot unregister: your motorbike has accepted bookings.\n";
                     break;
                 }
-                std::cout << "Are you sure you want to unregister your motorbike (" << it->licensePlate << ")? (y/n): ";
+                std::cout << "Are you sure you want to unregister your motorbike with license plate [" << it->licensePlate << "]? (y/n): ";
                 std::string ans; std::getline(std::cin, ans);
                 if (ans != "y" && ans != "Y") {
                     std::cout << "Unregister cancelled.\n";
@@ -741,7 +800,7 @@ void memberMenuLoop(const std::string& username) {
                 std::cout << "Your motorbike has been unregistered.\n";
                 break;
             }
-            case 7: {
+            case 6: {
                 // Approve rental requests (for owners)
                 std::vector<Motorbike> bikes = DataManager::loadMotorbikes("motorbikes.csv");
                 std::vector<RentalRequest> reqs = DataManager::loadRentalRequests("rental_requests.csv");
@@ -765,14 +824,26 @@ void memberMenuLoop(const std::string& username) {
                     std::cout << "No pending requests.\n";
                     break;
                 }
-                std::cout << "Enter the number of the request to approve (or 0 to cancel): ";
-                std::string sel; std::getline(std::cin, sel);
-                if (sel == "0" || sel.empty()) break;
-                int idx = std::stoi(sel) - 1;
-                if (idx < 0 || idx >= (int)pendingIdx.size()) {
-                    std::cout << "Invalid selection.\n";
+                int idx = -1;
+                while (true) {
+                    std::cout << "Enter the number of the request to approve (or 0 to cancel): ";
+                    std::string sel; std::getline(std::cin, sel);
+                    if (sel == "0" || sel.empty()) {
+                        idx = -1;
+                        break;
+                    }
+                    if (!isAllDigits(sel)) {
+                        std::cout << "Invalid selection. Please enter a valid number.\n";
+                        continue;
+                    }
+                    idx = safeStoi(sel, -1) - 1;
+                    if (idx < 0 || idx >= (int)pendingIdx.size()) {
+                        std::cout << "Invalid selection. Please enter a valid number.\n";
+                        continue;
+                    }
                     break;
                 }
+                if (idx < 0 || idx >= (int)pendingIdx.size()) break;
                 size_t reqIdx = pendingIdx[idx];
                 std::cout << "Approve (a) or reject (r) this request? (a/r): ";
                 std::string act; std::getline(std::cin, act);
@@ -788,9 +859,44 @@ void memberMenuLoop(const std::string& username) {
                 DataManager::saveRentalRequests("rental_requests.csv", reqs);
                 break;
             }
-            case 8:
+            case 7: {
+                // Cancel/Return rented motorbike
+                std::vector<User> users = DataManager::loadUsers("users.csv");
+                User* currentUser = nullptr;
+                for (auto& u : users) if (u.username == username) { currentUser = &u; break; }
+                if (!currentUser) { std::cout << "User not found!\n"; break; }
+                if (currentUser->rentingMotorbikeLicense.empty()) {
+                    std::cout << "You are not currently renting any motorbike.\n";
+                    break;
+                }
+                std::cout << "Are you sure you want to cancel/return the motorbike with license plate [" << currentUser->rentingMotorbikeLicense << "]? (y/n): ";
+                std::string ans; std::getline(std::cin, ans);
+                if (ans != "y" && ans != "Y") {
+                    std::cout << "Cancel/Return operation aborted.\n";
+                    break;
+                }
+                // Xóa trạng thái đang thuê của user
+                std::string plate = currentUser->rentingMotorbikeLicense;
+                currentUser->rentingMotorbikeLicense = "";
+                DataManager::saveUsers("users.csv", users);
+                // Xóa các yêu cầu thuê chưa được duyệt (isAccepted == false) của user cho xe này
+                std::vector<RentalRequest> reqs = DataManager::loadRentalRequests("rental_requests.csv");
+                for (auto it = reqs.begin(); it != reqs.end(); ) {
+                    if (it->renterUsername == username && it->motorbikeLicensePlate == plate && !it->isAccepted) {
+                        it = reqs.erase(it);
+                    } else {
+                        ++it;
+                    }
+                }
+                DataManager::saveRentalRequests("rental_requests.csv", reqs);
+                std::cout << "You have successfully cancelled/returned the motorbike [" << plate << "].\n";
+                break;
+            }
+            case 8: {
+                // Logout
                 std::cout << "Logging out...\n";
                 break;
+            }
             default:
                 std::cout << "Invalid option. Please try again.\n";
         }

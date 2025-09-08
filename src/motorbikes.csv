@@ -1,4 +1,3 @@
-Yamaha,Exciter,Blue,150,2023,59B2-67890,member2,Hanoi,15,2
-VinFast,Klara,Red,50,2024,29A1-88888,TestUser1,Hanoi,12,1
-vin3,,,1,2025,14,u3,HCMC,10,1
-vf2,12,gay,50,4,2,u1,2,2,2
+Brand,Model,Color,CapacityCC,Year,LicensePlate,OwnerUsername,City,PricePerDayCP,MinRenterRating
+vin,m4,black,80,2030,1234123,1,HANOI,20,1
+audi,12,blue,80,2025,s12345,Manh,HCMC,10,1

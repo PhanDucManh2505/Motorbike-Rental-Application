@@ -1,5 +1,3 @@
 username,password,fullName,email,phone,idType,idNumber,licenseNumber,licenseExpiry,role,creditPoints,rating,ownedMotorbikeLicense,rentingMotorbikeLicense
-u1,Manh123!!,Nguyen Van A,email1@gmail.com,0123456789,CCCD,123456789,123456789,20260101,1,20,3,,
-u2,Manh123!!!,Nguyen Van B,email2@gmail.com,0987654321,CCCD,987654321,987654321,20270101,1,30,4,,
-u3,Manh123!,manh1234,,77777777777,CCCD,777777777777,1,20260525,1,20,3,,
-u4,Manh1234!,a,,777777777,CCCD,777777777777,1,20300525,1,50,3,,
+1,Manh123!,phan duc manh,,0903295336,CCCD,123456789123,1234,20300525,1,50,5,,
+Manh,Manh123!!,Phan,Me@gmail.com,444444444,CCCD,124545454544,,20300525,1,30,5,,
