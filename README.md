@@ -50,7 +50,8 @@ README.md
 	 - Requires C++17 or later (g++, clang++)
 	 - Example build command:
 		 ```
-		 g++ -std=c++17 -o motorbike_app src/main.cpp src/data_manager.cpp src/admin.cpp src/member.cpp src/guest.cpp src/utils.cpp src/admin_login.cpp
+		 g++ -o main.exe main.cpp data_manager.cpp admin.cpp member.cpp guest.cpp utils.cpp admin_login.cpp
+
 		 ```
 2. **Run:**
 	 - Open terminal in the project folder and run:
