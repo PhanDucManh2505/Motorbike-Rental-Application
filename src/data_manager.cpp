@@ -123,6 +123,8 @@ namespace DataManager {
             r.fromDate = tokens[2].empty() || tokens[2].find_first_not_of("0123456789") != std::string::npos ? 0 : std::stol(tokens[2]);
             r.toDate = tokens[3].empty() || tokens[3].find_first_not_of("0123456789") != std::string::npos ? 0 : std::stol(tokens[3]);
             r.isAccepted = (tokens[4] == "1");
+            r.rating = (tokens.size() > 5 && !tokens[5].empty() && tokens[5].find_first_not_of("0123456789") == std::string::npos) ? std::stoi(tokens[5]) : 0;
+            r.comment = (tokens.size() > 6) ? tokens[6] : "";
             reqs.push_back(r);
         }
         return reqs;
@@ -130,9 +132,11 @@ namespace DataManager {
 
     void saveRentalRequests(const std::string& filename, const std::vector<RentalRequest>& reqs) {
         std::ofstream file(filename);
+        // Ghi header mới
+        file << "renterUsername,motorbikeLicensePlate,fromDate,toDate,isAccepted,rating,comment\n";
         for (const auto& r : reqs) {
             file << r.renterUsername << ',' << r.motorbikeLicensePlate << ',' << r.fromDate << ','
-                 << r.toDate << ',' << (r.isAccepted ? "1" : "0") << '\n';
+                 << r.toDate << ',' << (r.isAccepted ? "1" : "0") << ',' << r.rating << ',' << r.comment << '\n';
         }
     }
 }

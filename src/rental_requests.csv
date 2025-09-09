@@ -1,2 +1,4 @@
-renterUsername,motorbikeLicensePlate,0,0,0
-1,s12345,0,0,1
+renterUsername,motorbikeLicensePlate,fromDate,toDate,isAccepted,rating,comment
+renterUsername,motorbikeLicensePlate,0,0,0,0,comment
+renterUsername,motorbikeLicensePlate,0,0,0,0,comment
+renterUsername,motorbikeLicensePlate,0,0,0,0,comment

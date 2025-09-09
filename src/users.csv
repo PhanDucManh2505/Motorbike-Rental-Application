@@ -1,3 +1,4 @@
 username,password,fullName,email,phone,idType,idNumber,licenseNumber,licenseExpiry,role,creditPoints,rating,ownedMotorbikeLicense,rentingMotorbikeLicense
-1,Manh123!,phan duc manh,,0903295336,CCCD,123456789123,1234,20300525,1,50,5,,
-Manh,Manh123!!,Phan,Me@gmail.com,444444444,CCCD,124545454544,,20300525,1,30,5,,
+1,Manh123!,Phan Duc Manh,S4124156@rmit.edu.vn,0903295336,CCCD,111112222333,12,20300525,1,25,5,,
+2,Manh123!!,Nguyen,mono@123rmit.edu,3636363636,CCCD,123456789123,36,20300525,1,20,3,,
+4,Manh1234!,quy anh,ANh@rmit.edu.vn,123456789,CCCD,555879874231,36,20300525,1,860,5,,

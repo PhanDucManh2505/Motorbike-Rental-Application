@@ -49,6 +49,8 @@ struct RentalRequest {
     std::time_t fromDate;
     std::time_t toDate;
     bool isAccepted;
+    int rating = 0; // 1-5, 0 nếu chưa đánh giá
+    std::string comment;
 };
 
 // Thông tin người dùng

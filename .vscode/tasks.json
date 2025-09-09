@@ -10,6 +10,30 @@
 				"$gcc"
 			],
 			"group": "build"
+		},
+		{
+			"label": "Build and run full app",
+			"type": "shell",
+			"command": "g++ -std=c++17 -o motorbike_app src/main.cpp src/guest.cpp src/member.cpp src/admin.cpp src/data_manager.cpp",
+			"group": "build"
+		},
+		{
+			"label": "Build and run main.cpp",
+			"type": "shell",
+			"command": "g++ -std=c++17 -o motorbike_app src/main.cpp src/data_manager.cpp src/admin.cpp src/member.cpp src/guest.cpp src/utils.cpp src/admin_login.cpp",
+			"group": "build"
+		},
+		{
+			"label": "Build and run main.cpp",
+			"type": "shell",
+			"command": "g++ -std=c++17 -o motorbike_app src/main.cpp src/data_manager.cpp src/admin.cpp src/member.cpp src/guest.cpp src/utils.cpp src/admin_login.cpp",
+			"group": "build"
+		},
+		{
+			"label": "Build and run main.cpp",
+			"type": "shell",
+			"command": "g++ -std=c++17 -o motorbike_app src/main.cpp src/data_manager.cpp src/admin.cpp src/member.cpp src/guest.cpp src/utils.cpp src/admin_login.cpp",
+			"group": "build"
 		}
 	]
 }

@@ -1,16 +1,17 @@
 #include <iostream>
 #include "guest.h"
-#include "member.h"
 #include <regex>
 #include <iostream>
 #include <iomanip>
 #include "admin.h"
+#include "admin_login.h"
 #include "models.h"
 #include "data_manager.h"
 #include <vector>
 #include <limits>
 
 void showMainMenu();
+void memberMenuLoop(); // Prototype declaration for memberMenuLoop
 int main() {
     int choice = 0;
     do {
@@ -41,32 +42,16 @@ int main() {
             case 1:
                 guestMenuLoop();
                 break;
-            case 2: {
-                std::vector<User> users = DataManager::loadUsers("users.csv");
-                std::string username, password;
-                bool loginSuccess = false;
-                std::cout << "\n--- Member Login ---\n";
-                std::cout << "Username: ";
-                std::getline(std::cin, username);
-                std::cout << "Password: ";
-                std::getline(std::cin, password);
-                for (const auto& u : users) {
-                    if (u.username == username && u.password == password && u.role == UserRole::Member) {
-                        loginSuccess = true;
-                        break;
-                    }
-                }
-                if (loginSuccess) {
-                    std::cout << "Login successful!\n";
-                    memberMenuLoop(username);
-                } else {
-                    std::cout << "Login failed! Invalid username or password, or not a member.\n";
+            case 2:
+                memberMenuLoop();
+                break;
+            case 3: {
+                AdminAccount admin;
+                if (adminLogin(admin)) {
+                    adminMenuLoop();
                 }
                 break;
             }
-            case 3:
-                adminMenuLoop();
-                break;
             case 4:
                 std::cout << "Goodbye!\n";
                 break;
@@ -88,6 +73,21 @@ void registerMember();
 
 void showMainMenu() {
     std::cout << "\n";
+    std::cout << "                                    ,-~ |\n";
+    std::cout << "       ________________          o==]___|\n";
+    std::cout << "      |                |            \\ \\\n";
+    std::cout << "      |________________|            /\\ \\\n";
+    std::cout << " __  /  _,-----._      )           |  \\ \\\\\n";
+    std::cout << "|_||/_-~         `.   /()          |  /|]_|_____\n";
+    std::cout << "  |//              \\ |              \\/ /_-~     ~-_\n";
+    std::cout << "  //________________||              / //___________\\\n";
+    std::cout << " //__|______________| \\____________/ //___/-\\ \\~-_\n";
+    std::cout << "((_________________/_-o___________/_//___/  /,\\\\  \\\n";
+    std::cout << " |__/(  ((====)o===--~~                 (  ( (o/)  )\n";
+    std::cout << "      \\  ``==' /                         \\  `--'  /\n";
+    std::cout << "       `-.__,-'                            `-.__,-'\n";
+    std::cout << "\n";
+    
     std::cout << "==========================================\n";
     std::cout << "|      MOTORBIKE RENTAL APPLICATION       |\n";
     std::cout << "==========================================\n";
@@ -98,6 +98,7 @@ void showMainMenu() {
     std::cout << "==========================================\n";
     std::cout << "Please select an option: ";
 }
+
 
 
 
