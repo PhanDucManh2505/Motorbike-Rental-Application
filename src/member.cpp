@@ -697,8 +697,8 @@ void searchAndRentEbike(const User& member) {
     }
 
     // Hiển thị danh sách xe
-    std::cout << "\n============================ AVAILABLE EBIKES ==============================\n";
-    std::cout << "| No | Brand/Model      | Color   | CC   | Year | Plate     | City   | Price      |\n";
+    std::cout << "\n============================ AVAILABLE EBIKES =================================\n";
+    std::cout << "| No | Brand/Model   | Color   | CC   | Year | Plate     | City   | Price     |\n";
     std::cout << "-------------------------------------------------------------------------------\n";
     for (size_t i = 0; i < availableBikes.size(); ++i) {
         const auto& m = availableBikes[i];
