@@ -18,7 +18,7 @@ void showGuestMenu() {
     std::cout << "|                GUEST MENU                    |" << std::endl;
     std::cout << "===============================================|" << std::endl;
     std::cout << "| 1. Register as a new member                  |" << std::endl;
-    std::cout << "| 2. View motorbike list                       |" << std::endl;
+    std::cout << "| 2. View EBike list                           |" << std::endl;
     std::cout << "| 3. Back to main menu                         |" << std::endl;
     std::cout << "===============================================|" << std::endl;
     std::cout << "Please select an option: ";
@@ -269,11 +269,11 @@ void guestMenuLoop() {
                 break;
             }
             case 2: {
-                std::vector<Motorbike> bikes = DataManager::loadMotorbikes("motorbikes.csv");
+                std::vector<EBike> bikes = DataManager::loadMotorbikes("ebikes.csv");
                 if (bikes.empty()) {
-                    std::cout << "No motorbikes available.\n";
+                    std::cout << "No EBikes available.\n";
                 } else {
-                    std::cout << "\n[You are viewing as a guest. Please register or login to see more details or rent a motorbike.]\n";
+                    std::cout << "\n[You are viewing as a guest. Please register or login to see more details or rent an EBike.]\n";
                     std::cout << "==============================================\n";
                     std::cout << "| Brand      | Model         | CC   | City   |\n";
                     std::cout << "----------------------------------------------\n";

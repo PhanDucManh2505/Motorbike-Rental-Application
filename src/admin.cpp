@@ -4,6 +4,7 @@
 #include <iostream>
 #include <iomanip>
 #include <algorithm>
+#include <fstream>
 #include "data_manager.h"
 #include "models.h"
 
@@ -16,8 +17,9 @@ void adminMenuLoop() {
     std::cout << "|                ADMIN MENU                     |" << std::endl;
     std::cout << "+===============================================+" << std::endl;
     std::cout << "| 1. View all users                             |" << std::endl;
-    std::cout << "| 2. View all motorbikes                        |" << std::endl;
-    std::cout << "| 3. Logout                                     |" << std::endl;
+    std::cout << "| 2. View all EBikes                        |" << std::endl;
+    std::cout << "| 3. Delete EBike                           |" << std::endl;
+    std::cout << "| 4. Logout                                     |" << std::endl;
     std::cout << "+===============================================+" << std::endl;
     std::cout << "Please select an option: ";
         std::string input;
@@ -82,7 +84,7 @@ void adminMenuLoop() {
                                     auto reqs = DataManager::loadRentalRequests("rental_requests.csv");
                                     bool hasActive = false;
                                     for (const auto& r : reqs) {
-                                        if ((r.renterUsername == delUser && r.isAccepted) || (r.motorbikeLicensePlate == delUser && r.isAccepted)) {
+                                        if ((r.renterUsername == delUser && r.isAccepted) || (r.ebikeLicensePlate == delUser && r.isAccepted) || (r.motorbikeLicensePlate == delUser && r.isAccepted)) {
                                             hasActive = true; break;
                                         }
                                     }
@@ -94,12 +96,12 @@ void adminMenuLoop() {
                                     auto it = std::find_if(users.begin(), users.end(), [&](const User& u){ return u.username == delUser; });
                                     if (it != users.end()) users.erase(it);
                                     DataManager::saveUsers("users.csv", users);
-                                    // Xóa motorbike thuộc user này
-                                    auto bikes = DataManager::loadMotorbikes("motorbikes.csv");
-                                    bikes.erase(std::remove_if(bikes.begin(), bikes.end(), [&](const Motorbike& m){ return m.ownerUsername == delUser; }), bikes.end());
-                                    DataManager::saveMotorbikes("motorbikes.csv", bikes);
+                                    // Xóa EBike thuộc user này
+                                    auto bikes = DataManager::loadMotorbikes("ebikes.csv");
+                                    bikes.erase(std::remove_if(bikes.begin(), bikes.end(), [&](const EBike& m){ return m.ownerUsername == delUser; }), bikes.end());
+                                    DataManager::saveMotorbikes("ebikes.csv", bikes);
                                     // Xóa rental request liên quan
-                                    reqs.erase(std::remove_if(reqs.begin(), reqs.end(), [&](const RentalRequest& r){ return r.renterUsername == delUser || r.motorbikeLicensePlate == delUser; }), reqs.end());
+                                    reqs.erase(std::remove_if(reqs.begin(), reqs.end(), [&](const RentalRequest& r){ return r.renterUsername == delUser || r.ebikeLicensePlate == delUser || r.motorbikeLicensePlate == delUser; }), reqs.end());
                                     DataManager::saveRentalRequests("rental_requests.csv", reqs);
                                     std::cout << "Account '" << delUser << "' and all related data deleted!\n";
                                 } else if (delIdx != 0) {
@@ -109,9 +111,9 @@ void adminMenuLoop() {
                 break;
             }
             case 2: {
-                // Hiển thị tất cả motorbike
-                auto bikes = DataManager::loadMotorbikes("motorbikes.csv");
-                std::cout << "\n======================================== ALL MOTORBIKES ================================================\n";
+                // Hiển thị tất cả EBikes
+                auto bikes = DataManager::loadMotorbikes("ebikes.csv");
+                std::cout << "\n======================================== ALL EBIKES ================================================\n";
                 std::cout << "| License Plate | Brand      | Model      | Color   | CC   | Year | Owner        | City   | Price      | MinRating |\n";
                 std::cout << "------------------------------------------------------------------------------------------------------\n";
                 for (const auto& m : bikes) {
@@ -130,12 +132,64 @@ void adminMenuLoop() {
                 std::cout << "Press Enter to continue..."; std::string dummy; std::getline(std::cin, dummy);
                 break;
             }
-            case 3:
+            case 3: {
+                // Delete EBike
+                auto bikes = DataManager::loadMotorbikes("ebikes.csv");
+                if (bikes.empty()) { std::cout << "No EBikes to delete.\n"; std::cout << "Press Enter to continue..."; std::string dummy; std::getline(std::cin, dummy); break; }
+                std::cout << "\nListing EBikes:\n";
+                int i = 1;
+                for (const auto& m : bikes) {
+                    std::cout << i << ". " << m.licensePlate << " - " << m.brand << " " << m.model << " (Owner: " << m.ownerUsername << ")\n";
+                    ++i;
+                }
+                std::cout << "Enter the number of the EBike to delete (or 0 to cancel): "; std::string sel; std::getline(std::cin, sel);
+                int s = 0; try { s = std::stoi(sel); } catch (...) { s = 0; }
+                if (s <= 0 || s > (int)bikes.size()) { std::cout << "Cancelled or invalid selection.\n"; std::cout << "Press Enter to continue..."; std::string dummy; std::getline(std::cin, dummy); break; }
+                std::string lp = bikes[s-1].licensePlate;
+                // check active rental requests
+                auto reqs = DataManager::loadRentalRequests("rental_requests.csv");
+                bool hasActive = false;
+                for (const auto& r : reqs) {
+                    if ((r.ebikeLicensePlate == lp || r.motorbikeLicensePlate == lp) && r.isAccepted) { hasActive = true; break; }
+                }
+                if (hasActive) {
+                    // Archive the EBike into Rental.csv instead of deleting outright
+                    bool needHeader = false;
+                    std::ifstream ifs("Rental.csv");
+                    if (!ifs.good()) needHeader = true;
+                    ifs.close();
+                    std::ofstream ofs("Rental.csv", std::ios::app);
+                    if (needHeader) ofs << "Brand,Model,Color,CapacityCC,Year,LicensePlate,OwnerUsername,City,PricePerDayCP,MinRenterRating\n";
+                    const auto& bike = bikes[s-1];
+                    ofs << bike.brand << ',' << bike.model << ',' << bike.color << ',' << bike.capacityCC << ','
+                        << bike.year << ',' << bike.licensePlate << ',' << bike.ownerUsername << ',' << bike.city << ','
+                        << bike.pricePerDayCP << ',' << bike.minRenterRating << '\n';
+                    ofs.close();
+                    // Remove from active ebikes list and save
+                    bikes.erase(bikes.begin() + (s-1));
+                    DataManager::saveMotorbikes("ebikes.csv", bikes);
+                    std::cout << "EBike has active rentals — its data was archived to Rental.csv and removed from active list.\n";
+                    std::cout << "Press Enter to continue..."; std::string dummy; std::getline(std::cin, dummy);
+                    break;
+                }
+                // No active rentals: safe to delete and remove related requests
+                // remove bike
+                bikes.erase(bikes.begin() + (s-1));
+                DataManager::saveMotorbikes("ebikes.csv", bikes);
+                // remove related rental requests
+                reqs.erase(std::remove_if(reqs.begin(), reqs.end(), [&](const RentalRequest& r){ return r.ebikeLicensePlate == lp || r.motorbikeLicensePlate == lp; }), reqs.end());
+                DataManager::saveRentalRequests("rental_requests.csv", reqs);
+                std::cout << "EBike '" << lp << "' deleted.\n";
+                std::cout << "Press Enter to continue..."; std::string dummy; std::getline(std::cin, dummy);
+                break;
+            }
+            case 4: {
                 std::cout << "Logging out...\n";
                 running = false;
                 break;
             default:
                 std::cout << "Invalid option. Please try again.\n";
         }
+    }
     }
 }

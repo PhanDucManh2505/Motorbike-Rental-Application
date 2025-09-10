@@ -10,10 +10,10 @@ namespace DataManager {
     // Save all users to file
     void saveUsers(const std::string& filename, const std::vector<User>& users);
 
-    // Load all motorbikes from file
-    std::vector<Motorbike> loadMotorbikes(const std::string& filename);
-    // Save all motorbikes to file
-    void saveMotorbikes(const std::string& filename, const std::vector<Motorbike>& motorbikes);
+    // Load all EBikes from file (function name kept as loadMotorbikes for compatibility)
+    std::vector<EBike> loadMotorbikes(const std::string& filename);
+    // Save all EBikes to file
+    void saveMotorbikes(const std::string& filename, const std::vector<EBike>& motorbikes);
 
     // Load all rental requests from file
     std::vector<RentalRequest> loadRentalRequests(const std::string& filename);

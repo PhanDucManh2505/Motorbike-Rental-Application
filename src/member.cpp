@@ -13,10 +13,10 @@
 
 // Prototype cho menu thành viên
 void showMemberMenu(const std::string& username);
-void registerMotorbikeForRent(const std::string& ownerUsername);
-void searchAndRentMotorbike(const User& member);
+void registerEbikeForRent(const std::string& ownerUsername);
+void searchAndRentEbike(const User& member);
 void approveRentalRequests(const std::string& ownerUsername);
-void cancelOrReturnRentedMotorbike(User& member);
+void cancelOrReturnRentedEbike(User& member);
 // Prototype cho các hàm kiểm tra/ngày
 bool isValidDateDMY(const std::string& dateStr);
 time_t parseDateDMY(const std::string& dateStr);
@@ -29,7 +29,7 @@ void depositCreditPoints(User& member);
 void viewDepositHistory(const User& member);
 // Prototype cho các hàm rental history & unregister
 void viewRentalHistoryAndRatings(const User& member);
-void unregisterMotorbike(const std::string& ownerUsername);
+void unregisterEbike(const std::string& ownerUsername);
 
 // Vòng lặp menu thành viên: đăng nhập, chọn chức năng
 
@@ -60,10 +60,10 @@ void memberMenuLoop() {
         choice = safeStringToInt(input);
         switch (choice) {
             case 1:
-                registerMotorbikeForRent(member->username);
+                registerEbikeForRent(member->username);
                 break;
             case 2:
-                searchAndRentMotorbike(*member);
+                searchAndRentEbike(*member);
                 break;
             case 3:
                 manageProfile(*member);
@@ -72,13 +72,13 @@ void memberMenuLoop() {
                 viewRentalHistoryAndRatings(*member);
                 break;
             case 5:
-                unregisterMotorbike(member->username);
+                unregisterEbike(member->username);
                 break;
             case 6:
                 approveRentalRequests(member->username);
                 break;
             case 7:
-                cancelOrReturnRentedMotorbike(*member);
+                cancelOrReturnRentedEbike(*member);
                 break;
             case 8:
                 std::cout << "Logging out...\n";
@@ -96,7 +96,7 @@ void viewRentalHistoryAndRatings(const User& member) {
     bool found = false;
     for (const auto& req : requests) {
         if (req.renterUsername == member.username) {
-            std::cout << "- Motorbike: " << req.motorbikeLicensePlate
+            std::cout << "- EBike: " << req.ebikeLicensePlate
                       << ", From: " << formatTimestamp(req.fromDate)
                       << ", To: " << formatTimestamp(req.toDate);
             if (!req.comment.empty() || req.rating > 0) {
@@ -113,14 +113,14 @@ void viewRentalHistoryAndRatings(const User& member) {
     std::string dummy; std::getline(std::cin, dummy);
 }
 
-// Gỡ đăng xe máy
-void unregisterMotorbike(const std::string& ownerUsername) {
-    std::vector<Motorbike> bikes = DataManager::loadMotorbikes("motorbikes.csv");
-    auto it = std::find_if(bikes.begin(), bikes.end(), [&](const Motorbike& b) {
+// Gỡ đăng EBike
+void unregisterEbike(const std::string& ownerUsername) {
+    std::vector<EBike> bikes = DataManager::loadMotorbikes("ebikes.csv");
+    auto it = std::find_if(bikes.begin(), bikes.end(), [&](const EBike& b) {
         return toLower(trim(b.ownerUsername)) == toLower(trim(ownerUsername));
     });
     if (it == bikes.end()) {
-        std::cout << "\n[!] You have not registered any motorbike.\n";
+        std::cout << "\n[!] You have not registered any EBike.\n";
         std::cout << "Press Enter to continue...";
         std::string dummy; std::getline(std::cin, dummy);
         return;
@@ -128,14 +128,14 @@ void unregisterMotorbike(const std::string& ownerUsername) {
     std::vector<RentalRequest> requests = DataManager::loadRentalRequests("rental_requests.csv");
     std::time_t now = std::time(nullptr);
     for (const auto& req : requests) {
-        if (req.motorbikeLicensePlate == it->licensePlate && req.isAccepted && req.toDate >= now) {
-            std::cout << "\n[!] Cannot unregister: Your motorbike is currently rented or has a confirmed rental request!\n";
+        if (req.ebikeLicensePlate == it->licensePlate && req.isAccepted && req.toDate >= now) {
+            std::cout << "\n[!] Cannot unregister: Your EBike is currently rented or has a confirmed rental request!\n";
             std::cout << "Press Enter to continue...";
             std::string dummy; std::getline(std::cin, dummy);
             return;
         }
     }
-    std::cout << "\nAre you sure you want to unregister your motorbike (" << it->licensePlate << ")? (y/n): ";
+    std::cout << "\nAre you sure you want to unregister your EBike (" << it->licensePlate << ")? (y/n): ";
     std::string confirm; std::getline(std::cin, confirm);
     if (confirm != "y" && confirm != "Y") {
         std::cout << "Unregister cancelled.\n";
@@ -144,55 +144,55 @@ void unregisterMotorbike(const std::string& ownerUsername) {
         return;
     }
     bikes.erase(it);
-    DataManager::saveMotorbikes("motorbikes.csv", bikes);
-    std::cout << "Your motorbike has been unregistered successfully!\n";
+    DataManager::saveMotorbikes("ebikes.csv", bikes);
+    std::cout << "Your EBike has been unregistered successfully!\n";
     std::cout << "Press Enter to continue...";
     std::string dummy; std::getline(std::cin, dummy);
 }
-    // Menu quản lý hồ sơ
-    void manageProfile(User& member) {
-        int opt = 0;
-        do {
-            std::cout << "\n========================================\n";
-            std::cout << "|         MANAGE PROFILE MENU             |\n";
-            std::cout << "========================================\n";
-            std::cout << "| 1. View profile                         |\n";
-            std::cout << "| 2. Update profile                       |\n";
-            std::cout << "| 3. Change password                      |\n";
-            std::cout << "| 4. Deposit credit points                |\n";
-            std::cout << "| 5. View deposit history                 |\n";
-            std::cout << "| 6. Back                                 |\n";
-            std::cout << "========================================\n";
-            std::cout << "Select option: ";
-            std::string input; std::getline(std::cin, input);
-            if (!isAllDigits(input)) { std::cout << "Invalid option!\n"; continue; }
-            opt = safeStringToInt(input);
-            switch (opt) {
-                case 1:
-                    viewProfile(member);
-                    break;
-                case 2:
-                    updateProfile(member);
-                    break;
-                case 3:
-                    changePassword(member);
-                    break;
-                case 4:
-                    depositCreditPoints(member);
-                    break;
-                case 5:
-                    viewDepositHistory(member);
-                    break;
-                case 6:
-                    std::cout << "Returning to member menu...\n";
-                    break;
-                default:
-                    std::cout << "Invalid option!\n";
-            }
-        } while (opt != 6);
-    }
-    // Xem thông tin hồ sơ
-    void viewProfile(const User& member) {
+// Menu quản lý hồ sơ
+void manageProfile(User& member) {
+    int opt = 0;
+    do {
+        std::cout << "\n========================================\n";
+        std::cout << "|         MANAGE PROFILE MENU             |\n";
+        std::cout << "========================================\n";
+        std::cout << "| 1. View profile                         |\n";
+        std::cout << "| 2. Update profile                       |\n";
+        std::cout << "| 3. Change password                      |\n";
+        std::cout << "| 4. Deposit credit points                |\n";
+        std::cout << "| 5. View deposit history                 |\n";
+        std::cout << "| 6. Back                                 |\n";
+        std::cout << "========================================\n";
+        std::cout << "Select option: ";
+        std::string input; std::getline(std::cin, input);
+        if (!isAllDigits(input)) { std::cout << "Invalid option!\n"; continue; }
+        opt = safeStringToInt(input);
+        switch (opt) {
+            case 1:
+                viewProfile(member);
+                break;
+            case 2:
+                updateProfile(member);
+                break;
+            case 3:
+                changePassword(member);
+                break;
+            case 4:
+                depositCreditPoints(member);
+                break;
+            case 5:
+                viewDepositHistory(member);
+                break;
+            case 6:
+                std::cout << "Returning to member menu...\n";
+                break;
+            default:
+                std::cout << "Invalid option!\n";
+        }
+    } while (opt != 6);
+}
+// Xem thông tin hồ sơ
+void viewProfile(const User& member) {
     std::cout << "\n--- Profile Information ---\n";
     std::cout << "Username: " << member.username << "\n";
     std::cout << "Full name: " << member.fullName << "\n";
@@ -206,156 +206,156 @@ void unregisterMotorbike(const std::string& ownerUsername) {
     std::cout << "Rating: " << member.rating << "\n";
     std::cout << "Press Enter to continue...";
     std::string dummy; std::getline(std::cin, dummy);
+}
+//  Cập nhật hồ sơ
+void updateProfile(User& member) {
+    std::cout << "\n--- Update Profile ---\n";
+    std::vector<User> users = DataManager::loadUsers("users.csv");
+    // Cập nhật từng trường, trừ username
+    std::cout << "Current full name: " << member.fullName << "\nNew full name (leave blank to keep): ";
+    std::string input;
+    std::getline(std::cin, input);
+    if (!input.empty()) member.fullName = input;
+
+    std::cout << "Current email: " << member.email << "\nNew email (leave blank to keep): ";
+    std::getline(std::cin, input);
+    if (!input.empty()) {
+        // Kiểm tra trùng email
+        bool exists = false;
+        for (const auto& u : users) {
+            if (u.username != member.username && u.email == input) { exists = true; break; }
+        }
+        if (exists) std::cout << "Email already exists!\n";
+        else member.email = input;
     }
-    //  Cập nhật hồ sơ
-    void updateProfile(User& member) {
-        std::cout << "\n--- Update Profile ---\n";
-        std::vector<User> users = DataManager::loadUsers("users.csv");
-        // Cập nhật từng trường, trừ username
-        std::cout << "Current full name: " << member.fullName << "\nNew full name (leave blank to keep): ";
-        std::string input;
-        std::getline(std::cin, input);
-        if (!input.empty()) member.fullName = input;
 
-        std::cout << "Current email: " << member.email << "\nNew email (leave blank to keep): ";
-        std::getline(std::cin, input);
-        if (!input.empty()) {
-            // Kiểm tra trùng email
-            bool exists = false;
-            for (const auto& u : users) {
-                if (u.username != member.username && u.email == input) { exists = true; break; }
-            }
-            if (exists) std::cout << "Email already exists!\n";
-            else member.email = input;
-        }
-
-        std::cout << "Current phone: " << member.phone << "\nNew phone (leave blank to keep): ";
-        std::getline(std::cin, input);
-        if (!input.empty()) {
-            bool valid = true;
-            std::string reason;
-            if (input.length() < 9 || input.length() > 11) {
-                valid = false;
-                reason = "Phone must be 9-11 digits.";
-            } else {
-                for (char c : input) {
-                    if (!isdigit(c)) { valid = false; reason = "Phone must contain only digits."; break; }
-                }
-            }
-            // Kiểm tra trùng phone
-            bool exists = false;
-            for (const auto& u : users) {
-                if (u.username != member.username && u.phone == input) { exists = true; break; }
-            }
-            if (exists) {
-                valid = false;
-                reason = "Phone number already exists.";
-            }
-            if (!valid) {
-                std::cout << "Invalid phone number! " << reason << "\n";
-            } else {
-                member.phone = input;
-            }
-        }
-
-        std::cout << "Current ID type: " << member.idType << "\nNew ID type (CCCD/Passport, leave blank to keep): ";
-        std::getline(std::cin, input);
-        if (!input.empty() && (input == "CCCD" || input == "Passport")) member.idType = input;
-
-        std::cout << "Current ID number: " << member.idNumber << "\nNew ID number (leave blank to keep): ";
-        std::getline(std::cin, input);
-        if (!input.empty()) member.idNumber = input;
-
-        std::cout << "Current license number: " << member.licenseNumber << "\nNew license number (leave blank to keep): ";
-        std::getline(std::cin, input);
-        if (!input.empty()) member.licenseNumber = input;
-
-        std::cout << "Current license expiry: " << member.licenseExpiry << "\nNew license expiry (dd/mm/yyyy, leave blank to keep): ";
-        std::getline(std::cin, input);
-        if (!input.empty()) {
-            if (isValidDateDMY(input)) {
-                member.licenseExpiry = parseDateDMY(input);
-            } else {
-                std::cout << "Invalid date format!\n";
-            }
-        }
-
-        // Xác nhận trước khi lưu
-        std::cout << "\nAre you sure you want to save changes? (y/n): ";
-        std::string confirm; std::getline(std::cin, confirm);
-        if (confirm == "y" || confirm == "Y") {
-            for (auto& u : users) {
-                if (u.username == member.username) {
-                    u = member;
-                    break;
-                }
-            }
-            DataManager::saveUsers("users.csv", users);
-            std::cout << "Profile updated!\n";
-            std::cout << "Press Enter to continue...";
-            std::string dummy; std::getline(std::cin, dummy);
+    std::cout << "Current phone: " << member.phone << "\nNew phone (leave blank to keep): ";
+    std::getline(std::cin, input);
+    if (!input.empty()) {
+        bool valid = true;
+        std::string reason;
+        if (input.length() < 9 || input.length() > 11) {
+            valid = false;
+            reason = "Phone must be 9-11 digits.";
         } else {
-            std::cout << "Update cancelled. No changes saved.\n";
+            for (char c : input) {
+                if (!isdigit(c)) { valid = false; reason = "Phone must contain only digits."; break; }
+            }
         }
-    }
-    // Đổi mật khẩu
-    void changePassword(User& member) {
-        std::cout << "\n--- Change Password ---\n";
-        std::vector<User> users = DataManager::loadUsers("users.csv");
-        std::string oldPw, newPw, confirmPw;
-        std::cout << "Enter current password: ";
-        std::getline(std::cin, oldPw);
-        if (oldPw != member.password) {
-            std::cout << "[!] Incorrect current password. Password not changed.\n";
-            return;
+        // Kiểm tra trùng phone
+        bool exists = false;
+        for (const auto& u : users) {
+            if (u.username != member.username && u.phone == input) { exists = true; break; }
         }
-        // Nhập password mới
-        while (true) {
-            std::cout << "Enter new password: ";
-            std::getline(std::cin, newPw);
-            bool pwExists = false;
-            for (const auto& u : users) {
-                if (u.password == newPw) { pwExists = true; break; }
-            }
-            if (pwExists) {
-                std::cout << "[!] Password already exists! Please choose another.\n";
-                continue;
-            }
-            std::vector<std::string> reasons = getPasswordWeaknesses(newPw);
-            if (!reasons.empty()) {
-                std::cout << "[!] Password is weak!\n";
-                for (const auto& r : reasons) std::cout << "- " << r << "\n";
-                continue;
-            }
-            std::cout << "Confirm new password: ";
-            std::getline(std::cin, confirmPw);
-            if (newPw != confirmPw) {
-                std::cout << "[!] Passwords do not match!\n";
-                continue;
-            }
-            break;
+        if (exists) {
+            valid = false;
+            reason = "Phone number already exists.";
         }
-        // Xác nhận trước khi lưu
-        std::cout << "Are you sure you want to change your password? (y/n): ";
-        std::string confirm; std::getline(std::cin, confirm);
-        if (confirm == "y" || confirm == "Y") {
-            for (auto& u : users) {
-                if (u.username == member.username) {
-                    u.password = newPw;
-                    member.password = newPw;
-                    break;
-                }
-            }
-            DataManager::saveUsers("users.csv", users);
-            std::cout << "[✓] Password changed successfully!\n";
-            std::cout << "Press Enter to continue...";
-            std::string dummy; std::getline(std::cin, dummy);
+        if (!valid) {
+            std::cout << "Invalid phone number! " << reason << "\n";
         } else {
-            std::cout << "[!] Password change cancelled. No changes made.\n";
+            member.phone = input;
         }
     }
-    // Nạp điểm tín dụng
-    void depositCreditPoints(User& member) {
+
+    std::cout << "Current ID type: " << member.idType << "\nNew ID type (CCCD/Passport, leave blank to keep): ";
+    std::getline(std::cin, input);
+    if (!input.empty() && (input == "CCCD" || input == "Passport")) member.idType = input;
+
+    std::cout << "Current ID number: " << member.idNumber << "\nNew ID number (leave blank to keep): ";
+    std::getline(std::cin, input);
+    if (!input.empty()) member.idNumber = input;
+
+    std::cout << "Current license number: " << member.licenseNumber << "\nNew license number (leave blank to keep): ";
+    std::getline(std::cin, input);
+    if (!input.empty()) member.licenseNumber = input;
+
+    std::cout << "Current license expiry: " << member.licenseExpiry << "\nNew license expiry (dd/mm/yyyy, leave blank to keep): ";
+    std::getline(std::cin, input);
+    if (!input.empty()) {
+        if (isValidDateDMY(input)) {
+            member.licenseExpiry = parseDateDMY(input);
+        } else {
+            std::cout << "Invalid date format!\n";
+        }
+    }
+
+    // Xác nhận trước khi lưu
+    std::cout << "\nAre you sure you want to save changes? (y/n): ";
+    std::string confirm; std::getline(std::cin, confirm);
+    if (confirm == "y" || confirm == "Y") {
+        for (auto& u : users) {
+            if (u.username == member.username) {
+                u = member;
+                break;
+            }
+        }
+        DataManager::saveUsers("users.csv", users);
+        std::cout << "Profile updated!\n";
+        std::cout << "Press Enter to continue...";
+        std::string dummy; std::getline(std::cin, dummy);
+    } else {
+        std::cout << "Update cancelled. No changes saved.\n";
+    }
+}
+// Đổi mật khẩu
+void changePassword(User& member) {
+    std::cout << "\n--- Change Password ---\n";
+    std::vector<User> users = DataManager::loadUsers("users.csv");
+    std::string oldPw, newPw, confirmPw;
+    std::cout << "Enter current password: ";
+    std::getline(std::cin, oldPw);
+    if (oldPw != member.password) {
+        std::cout << "[!] Incorrect current password. Password not changed.\n";
+        return;
+    }
+    // Nhập password mới
+    while (true) {
+        std::cout << "Enter new password: ";
+        std::getline(std::cin, newPw);
+        bool pwExists = false;
+        for (const auto& u : users) {
+            if (u.password == newPw) { pwExists = true; break; }
+        }
+        if (pwExists) {
+            std::cout << "[!] Password already exists! Please choose another.\n";
+            continue;
+        }
+        std::vector<std::string> reasons = getPasswordWeaknesses(newPw);
+        if (!reasons.empty()) {
+            std::cout << "[!] Password is weak!\n";
+            for (const auto& r : reasons) std::cout << "- " << r << "\n";
+            continue;
+        }
+        std::cout << "Confirm new password: ";
+        std::getline(std::cin, confirmPw);
+        if (newPw != confirmPw) {
+            std::cout << "[!] Passwords do not match!\n";
+            continue;
+        }
+        break;
+    }
+    // Xác nhận trước khi lưu
+    std::cout << "Are you sure you want to change your password? (y/n): ";
+    std::string confirm; std::getline(std::cin, confirm);
+    if (confirm == "y" || confirm == "Y") {
+        for (auto& u : users) {
+            if (u.username == member.username) {
+                u.password = newPw;
+                member.password = newPw;
+                break;
+            }
+        }
+        DataManager::saveUsers("users.csv", users);
+        std::cout << "[✓] Password changed successfully!\n";
+        std::cout << "Press Enter to continue...";
+        std::string dummy; std::getline(std::cin, dummy);
+    } else {
+        std::cout << "[!] Password change cancelled. No changes made.\n";
+    }
+}
+// Nạp điểm tín dụng
+void depositCreditPoints(User& member) {
     std::cout << "\n--- Deposit Credit Points ---\n";
     std::vector<User> users = DataManager::loadUsers("users.csv");
     std::string pw, amountStr;
@@ -404,9 +404,9 @@ void unregisterMotorbike(const std::string& ownerUsername) {
     std::cout << "[✓] Deposit successful! Your new balance: " << member.creditPoints << " CP\n";
     std::cout << "Press Enter to continue...";
     std::string dummy; std::getline(std::cin, dummy);
-    }
-    // Xem lịch sử nạp điểm tín dụng
-    void viewDepositHistory(const User& member) {
+}
+// Xem lịch sử nạp điểm tín dụng
+void viewDepositHistory(const User& member) {
     std::cout << "\n--- Deposit History ---\n";
     std::ifstream ifs("deposit_history.csv");
     if (!ifs) {
@@ -432,7 +432,7 @@ void unregisterMotorbike(const std::string& ownerUsername) {
     if (!found) std::cout << "No deposit history for this account.\n";
     std::cout << "Press Enter to continue...";
     std::string dummy; std::getline(std::cin, dummy);
-    }
+}
 
 // Hiển thị menu thành viên
 void showMemberMenu(const std::string& username) {
@@ -440,32 +440,32 @@ void showMemberMenu(const std::string& username) {
     std::cout << "===============================================|" << std::endl;
     std::cout << "|                MEMBER MENU                   |" << std::endl;
     std::cout << "===============================================|" << std::endl;
-    std::cout << "| 1. Register a motorbike for rent             |" << std::endl;
-    std::cout << "| 2. Search and rent a motorbike               |" << std::endl;
+    std::cout << "| 1. Register an EBike for rent                |" << std::endl;
+    std::cout << "| 2. Search and rent an EBike                  |" << std::endl;
     std::cout << "| 3. Manage profile                            |" << std::endl;
     std::cout << "| 4. View rental history & ratings             |" << std::endl;
-    std::cout << "| 5. Unregister your motorbike                 |" << std::endl;
+    std::cout << "| 5. Unregister your EBike                     |" << std::endl;
     std::cout << "| 6. Approve rental requests (for owners)      |" << std::endl;
-    std::cout << "| 7. Cancel/Return rented motorbike            |" << std::endl;
+    std::cout << "| 7. Cancel/Return rented EBike                |" << std::endl;
     std::cout << "| 8. Logout                                    |" << std::endl;
     std::cout << "===============================================|" << std::endl;
     std::cout << "Welcome, " << username << "!" << std::endl;
     std::cout << "Please select an option: ";
 }
-// Hàm đăng ký xe máy cho thuê
-void registerMotorbikeForRent(const std::string& ownerUsername) {
-    std::vector<Motorbike> bikes = DataManager::loadMotorbikes("motorbikes.csv");
+// Hàm đăng ký EBike cho thuê
+void registerEbikeForRent(const std::string& ownerUsername) {
+    std::vector<EBike> bikes = DataManager::loadMotorbikes("ebikes.csv");
     // Check if member already registered a bike
     for (const auto& b : bikes) {
         if (toLower(trim(b.ownerUsername)) == toLower(trim(ownerUsername))) {
-            std::cout << "\n[!] You have already registered a motorbike. Cannot register more!\n";
+            std::cout << "\n[!] You have already registered an EBike. Cannot register more!\n";
             std::cout << "Press Enter to continue...";
             std::string dummy; std::getline(std::cin, dummy);
             return;
         }
     }
-    Motorbike m;
-    std::cout << "\n--- Register a Motorbike for Rent ---\n";
+    EBike m;
+    std::cout << "\n--- Register an EBike for Rent ---\n";
     // Brand
     std::cout << "Brand: ";
     std::getline(std::cin, m.brand);
@@ -612,30 +612,28 @@ void registerMotorbikeForRent(const std::string& ownerUsername) {
     m.ownerUsername = ownerUsername;
     m.isAvailable = true;
     bikes.push_back(m);
-    DataManager::saveMotorbikes("motorbikes.csv", bikes);
-    std::cout << "Motorbike registered successfully!\n";
+    DataManager::saveMotorbikes("ebikes.csv", bikes);
+    std::cout << "EBike registered successfully!\n";
 }
-
-// Xem toàn bộ xe hoặc tìm kiếm, gửi yêu cầu thuê
-// Xem toàn bộ xe hoặc tìm kiếm, gửi yêu cầu thuê
-void searchAndRentMotorbike(const User& member) {
+// Xem toàn bộ EBikes hoặc tìm kiếm, gửi yêu cầu thuê
+void searchAndRentEbike(const User& member) {
     // Load danh sách xe và request
     std::vector<RentalRequest> allRequests = DataManager::loadRentalRequests("rental_requests.csv");
-    std::vector<Motorbike> bikes = DataManager::loadMotorbikes("motorbikes.csv");
+    std::vector<EBike> bikes = DataManager::loadMotorbikes("ebikes.csv");
     // Kiểm tra nếu user đã có rental request được chấp nhận và chưa hết hạn thì không cho thuê tiếp
     time_t now = std::time(nullptr);
     for (const auto& req : allRequests) {
         if (req.renterUsername == member.username && req.isAccepted && req.toDate >= now) {
-            std::cout << "You already have an active rental. Please return/cancel it before renting another motorbike.\n";
+            std::cout << "You already have an active rental. Please return/cancel it before renting another EBike.\n";
             return;
         }
     }
 
-    std::cout << "\n--- Search and Rent a Motorbike ---\n";
-    std::cout << "1. View all motorbikes\n2. Search by city\nChoose option: ";
+    std::cout << "\n--- Search and Rent an EBike ---\n";
+    std::cout << "1. View all EBikes\n2. Search by city\nChoose option: ";
     std::string opt; std::getline(std::cin, opt);
 
-    std::vector<Motorbike> filtered;
+    std::vector<EBike> filtered;
     if (opt == "1") {
         filtered = bikes;
     } else {
@@ -652,7 +650,7 @@ void searchAndRentMotorbike(const User& member) {
         }
     }
     if (filtered.empty()) {
-        std::cout << "No motorbikes found matching your criteria.\n";
+        std::cout << "No EBikes found matching your criteria.\n";
         return;
     }
 
@@ -681,11 +679,11 @@ void searchAndRentMotorbike(const User& member) {
     }
 
     // Lọc xe còn trống trong khoảng thời gian
-    std::vector<Motorbike> availableBikes;
+    std::vector<EBike> availableBikes;
     for (const auto& m : filtered) {
         bool isRented = false;
         for (const auto& req : allRequests) {
-            if (req.motorbikeLicensePlate == m.licensePlate && req.isAccepted) {
+            if (req.ebikeLicensePlate == m.licensePlate && req.isAccepted) {
                 if (!(toDate < req.fromDate || fromDate > req.toDate)) {
                     isRented = true; break;
                 }
@@ -694,12 +692,12 @@ void searchAndRentMotorbike(const User& member) {
         if (!isRented) availableBikes.push_back(m);
     }
     if (availableBikes.empty()) {
-        std::cout << "No available motorbikes for the selected period.\n";
+        std::cout << "No available EBikes for the selected period.\n";
         return;
     }
 
     // Hiển thị danh sách xe
-    std::cout << "\n============================ AVAILABLE MOTORBIKES ==============================\n";
+    std::cout << "\n============================ AVAILABLE EBIKES ==============================\n";
     std::cout << "| No | Brand/Model      | Color   | CC   | Year | Plate     | City   | Price      |\n";
     std::cout << "-------------------------------------------------------------------------------\n";
     for (size_t i = 0; i < availableBikes.size(); ++i) {
@@ -717,7 +715,7 @@ void searchAndRentMotorbike(const User& member) {
     std::cout << "-------------------------------------------------------------------------------\n";
 
     // Người dùng chọn xe
-    std::cout << "\nEnter the number of the motorbike to rent (0 to cancel): ";
+    std::cout << "\nEnter the number of the EBike to rent (0 to cancel): ";
     std::string sel; std::getline(std::cin, sel);
     int idx = safeStringToInt(sel) - 1;
     if (idx < 0 || idx >= (int)availableBikes.size()) {
@@ -735,13 +733,14 @@ void searchAndRentMotorbike(const User& member) {
         std::cout << "Your rating is too low!\n"; return;
     }
     if (chosen.capacityCC > 50 && (member.licenseNumber.empty() || member.licenseExpiry < std::time(nullptr))) {
-        std::cout << "You need a valid license to rent this motorbike!\n"; return;
+        std::cout << "You need a valid license to rent this EBike!\n"; return;
     }
 
     // Tạo request mới
     RentalRequest req;
     req.renterUsername = member.username;
-    req.motorbikeLicensePlate = chosen.licensePlate;
+    req.ebikeLicensePlate = chosen.licensePlate;
+    req.motorbikeLicensePlate = req.ebikeLicensePlate; // compatibility
     req.fromDate = fromDate;
     req.toDate = toDate;
     req.isAccepted = false;
@@ -777,12 +776,12 @@ time_t parseDateDMY(const std::string& dateStr) {
 }
 // Duyệt yêu cầu thuê xe (chủ xe)
 void approveRentalRequests(const std::string& ownerUsername) {
-    std::vector<Motorbike> bikes = DataManager::loadMotorbikes("motorbikes.csv");
-    auto it = std::find_if(bikes.begin(), bikes.end(), [&](const Motorbike& b) {
+    std::vector<EBike> bikes = DataManager::loadMotorbikes("ebikes.csv");
+    auto it = std::find_if(bikes.begin(), bikes.end(), [&](const EBike& b) {
         return toLower(trim(b.ownerUsername)) == toLower(trim(ownerUsername));
     });
     if (it == bikes.end()) {
-        std::cout << "\n[!] You have not registered any motorbike.\n";
+        std::cout << "\n[!] You have not registered any EBike.\n";
         std::cout << "Press Enter to continue...";
         std::string dummy; std::getline(std::cin, dummy);
         return;
@@ -791,7 +790,7 @@ void approveRentalRequests(const std::string& ownerUsername) {
     bool hasRequest = false;
     std::vector<User> users = DataManager::loadUsers("users.csv");
     for (size_t i = 0; i < requests.size(); ++i) {
-        if (requests[i].motorbikeLicensePlate == it->licensePlate && !requests[i].isAccepted) {
+        if (requests[i].ebikeLicensePlate == it->licensePlate && !requests[i].isAccepted) {
             hasRequest = true;
             std::cout << "\nRental request from: " << requests[i].renterUsername << ", Sent at: "
                       << formatTimestamp(requests[i].fromDate) << "\n";
@@ -818,12 +817,24 @@ void approveRentalRequests(const std::string& ownerUsername) {
                 DataManager::saveUsers("users.csv", users);
                 // Đánh dấu xe đang được thuê đúng giai đoạn
                 it->bookedPeriods.push_back({requests[i].fromDate, requests[i].toDate});
-                DataManager::saveMotorbikes("motorbikes.csv", bikes);
+                DataManager::saveMotorbikes("ebikes.csv", bikes);
                 requests[i].isAccepted = true;
+
+                // Archive the EBike record into Rental.csv to mark it as rented
+                {
+                    std::ofstream rofs("Rental.csv", std::ios::app);
+                    if (rofs) {
+                        // Ensure header exists is handled elsewhere; append row
+                        rofs << it->brand << ',' << it->model << ',' << it->color << ',' << it->capacityCC << ','
+                             << it->year << ',' << it->licensePlate << ',' << it->ownerUsername << ',' << it->city << ','
+                             << it->pricePerDayCP << ',' << it->minRenterRating << '\n';
+                        rofs.close();
+                    }
+                }
                 // Tự động từ chối các yêu cầu chồng lấn thời gian
                 for (size_t j = 0; j < requests.size(); ++j) {
                     if (j == i) continue;
-                    if (requests[j].motorbikeLicensePlate == it->licensePlate && !requests[j].isAccepted) {
+                    if (requests[j].ebikeLicensePlate == it->licensePlate && !requests[j].isAccepted) {
                         // Kiểm tra chồng lấn thời gian
                         bool overlap = !(requests[j].toDate < requests[i].fromDate || requests[j].fromDate > requests[i].toDate);
                         if (overlap) {
@@ -849,24 +860,24 @@ void approveRentalRequests(const std::string& ownerUsername) {
     std::string dummy; std::getline(std::cin, dummy);
 }
 
-// Hủy hoặc trả xe đã thuê (người thuê)
-void cancelOrReturnRentedMotorbike(User& member){
+// Hủy hoặc trả EBike đã thuê (người thuê)
+void cancelOrReturnRentedEbike(User& member){
     std::vector<RentalRequest> requests = DataManager::loadRentalRequests("rental_requests.csv");
-    std::vector<Motorbike> bikes = DataManager::loadMotorbikes("motorbikes.csv");
+    std::vector<EBike> bikes = DataManager::loadMotorbikes("ebikes.csv");
     bool found = false;
 
     // Trường hợp đang thuê xe (isAccepted == true)
     for (size_t i = 0; i < requests.size(); ++i) {
         if (requests[i].renterUsername == member.username && requests[i].isAccepted) {
             found = true;
-            std::cout << "\nYou are currently renting: " << requests[i].motorbikeLicensePlate 
-                      << ". Return this motorbike? (y/n): ";
+            std::cout << "\nYou are currently renting: " << requests[i].ebikeLicensePlate 
+                      << ". Return this EBike? (y/n): ";
             std::string confirm; std::getline(std::cin, confirm);
             if (confirm == "y" || confirm == "Y") {
-                std::cout << "Motorbike returned successfully!\n";
+                std::cout << "EBike returned successfully!\n";
 
-                // Đánh giá xe
-                std::cout << "Would you like to rate this motorbike? (y/n): ";
+                // Đánh giá EBike
+                std::cout << "Would you like to rate this EBike? (y/n): ";
                 std::string rateOpt; std::getline(std::cin, rateOpt);
                 if (rateOpt == "y" || rateOpt == "Y") {
                     int score = 0;
@@ -884,7 +895,7 @@ void cancelOrReturnRentedMotorbike(User& member){
                     requests[i].comment = comment;
 
                     for (auto& b : bikes) {
-                        if (b.licensePlate == requests[i].motorbikeLicensePlate) {
+                        if (b.licensePlate == requests[i].ebikeLicensePlate) {
                             Rating r;
                             r.score = score;
                             r.comment = comment;
@@ -914,7 +925,7 @@ void cancelOrReturnRentedMotorbike(User& member){
                         }
                         DataManager::saveUsers("users.csv", users);
                     }
-                    DataManager::saveMotorbikes("motorbikes.csv", bikes);
+                    DataManager::saveMotorbikes("ebikes.csv", bikes);
                     std::cout << "Thank you for your rating!\n";
                 }
 
@@ -934,7 +945,7 @@ void cancelOrReturnRentedMotorbike(User& member){
     for (size_t i = 0; i < requests.size(); ++i) {
         if (requests[i].renterUsername == member.username && !requests[i].isAccepted) {
             found = true;
-            std::cout << "\nYou have a pending rental request for " << requests[i].motorbikeLicensePlate 
+            std::cout << "\nYou have a pending rental request for " << requests[i].ebikeLicensePlate 
                       << ". Cancel this request? (y/n): ";
             std::string confirm; std::getline(std::cin, confirm);
             if (confirm == "y" || confirm == "Y") {

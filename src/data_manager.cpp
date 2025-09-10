@@ -45,8 +45,8 @@ namespace DataManager {
             u.role = tokens[9].empty() || tokens[9].find_first_not_of("0123456789") != std::string::npos ? UserRole::Member : static_cast<UserRole>(std::stoi(tokens[9]));
             u.creditPoints = tokens[10].empty() || tokens[10].find_first_not_of("0123456789") != std::string::npos ? 0 : std::stoi(tokens[10]);
             u.rating = tokens[11].empty() || tokens[11].find_first_not_of("0123456789") != std::string::npos ? 0 : std::stoi(tokens[11]);
-            if (tokens.size() > 12) u.ownedMotorbikeLicense = tokens[12];
-            if (tokens.size() > 13) u.rentingMotorbikeLicense = tokens[13];
+            if (tokens.size() > 12) u.ownedEbikeLicense = tokens[12];
+            if (tokens.size() > 13) u.rentingEbikeLicense = tokens[13];
             users.push_back(u);
         }
         return users;
@@ -55,17 +55,17 @@ namespace DataManager {
     void saveUsers(const std::string& filename, const std::vector<User>& users) {
         std::ofstream file(filename);
         // Ghi dòng tiêu đề (header)
-        file << "username,password,fullName,email,phone,idType,idNumber,licenseNumber,licenseExpiry,role,creditPoints,rating,ownedMotorbikeLicense,rentingMotorbikeLicense\n";
+        file << "username,password,fullName,email,phone,idType,idNumber,licenseNumber,licenseExpiry,role,creditPoints,rating,ownedEbikeLicense,rentingEbikeLicense\n";
         for (const auto& u : users) {
             file << u.username << ',' << u.password << ',' << u.fullName << ',' << u.email << ','
                  << u.phone << ',' << u.idType << ',' << u.idNumber << ',' << u.licenseNumber << ','
                  << u.licenseExpiry << ',' << static_cast<int>(u.role) << ',' << u.creditPoints << ','
-                 << u.rating << ',' << u.ownedMotorbikeLicense << ',' << u.rentingMotorbikeLicense << '\n';
+                 << u.rating << ',' << u.ownedEbikeLicense << ',' << u.rentingEbikeLicense << '\n';
         }
     }
 
-    std::vector<Motorbike> loadMotorbikes(const std::string& filename) {
-        std::vector<Motorbike> bikes;
+    std::vector<EBike> loadMotorbikes(const std::string& filename) {
+        std::vector<EBike> bikes;
         std::ifstream file(filename);
         std::string line;
         bool isFirstLine = true;
@@ -82,7 +82,7 @@ namespace DataManager {
                 }
             }
             if (!valid) continue;
-            Motorbike m;
+            EBike m;
             m.brand = tokens[0];
             m.model = tokens[1];
             m.color = tokens[2];
@@ -99,7 +99,7 @@ namespace DataManager {
         return bikes;
     }
 
-    void saveMotorbikes(const std::string& filename, const std::vector<Motorbike>& bikes) {
+    void saveMotorbikes(const std::string& filename, const std::vector<EBike>& bikes) {
         std::ofstream file(filename);
         // Write header
         file << "Brand,Model,Color,CapacityCC,Year,LicensePlate,OwnerUsername,City,PricePerDayCP,MinRenterRating\n";
@@ -110,16 +110,27 @@ namespace DataManager {
         }
     }
 
+    // Backwards-compatible wrappers named loadEbikes/saveEbikes
+    std::vector<EBike> loadEbikes(const std::string& filename) {
+        return loadMotorbikes(filename);
+    }
+    void saveEbikes(const std::string& filename, const std::vector<EBike>& bikes) {
+        saveMotorbikes(filename, bikes);
+    }
+
     std::vector<RentalRequest> loadRentalRequests(const std::string& filename) {
         std::vector<RentalRequest> reqs;
         std::ifstream file(filename);
         std::string line;
+        bool isFirstLine = true;
         while (std::getline(file, line)) {
+            if (isFirstLine) { isFirstLine = false; continue; }
             auto tokens = split(line, ',');
             if (tokens.size() < 5) continue;
             RentalRequest r;
             r.renterUsername = tokens[0];
-            r.motorbikeLicensePlate = tokens[1];
+            r.ebikeLicensePlate = tokens[1];
+            r.motorbikeLicensePlate = r.ebikeLicensePlate; // compatibility
             r.fromDate = tokens[2].empty() || tokens[2].find_first_not_of("0123456789") != std::string::npos ? 0 : std::stol(tokens[2]);
             r.toDate = tokens[3].empty() || tokens[3].find_first_not_of("0123456789") != std::string::npos ? 0 : std::stol(tokens[3]);
             r.isAccepted = (tokens[4] == "1");
@@ -133,9 +144,9 @@ namespace DataManager {
     void saveRentalRequests(const std::string& filename, const std::vector<RentalRequest>& reqs) {
         std::ofstream file(filename);
         // Ghi header mới
-        file << "renterUsername,motorbikeLicensePlate,fromDate,toDate,isAccepted,rating,comment\n";
+        file << "renterUsername,ebikeLicensePlate,fromDate,toDate,isAccepted,rating,comment\n";
         for (const auto& r : reqs) {
-            file << r.renterUsername << ',' << r.motorbikeLicensePlate << ',' << r.fromDate << ','
+            file << r.renterUsername << ',' << r.ebikeLicensePlate << ',' << r.fromDate << ','
                  << r.toDate << ',' << (r.isAccepted ? "1" : "0") << ',' << r.rating << ',' << r.comment << '\n';
         }
     }

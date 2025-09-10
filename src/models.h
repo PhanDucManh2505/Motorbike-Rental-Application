@@ -25,8 +25,8 @@ struct Rating {
     std::time_t timestamp;
 };
 
-// Thông tin xe máy điện
-struct Motorbike {
+// Thông tin EBike
+struct EBike {
     std::string brand;
     std::string model;
     std::string color;
@@ -41,11 +41,14 @@ struct Motorbike {
     bool isAvailable;
     std::vector<std::pair<std::time_t, std::time_t>> bookedPeriods;
 };
+// backward compatibility: some files still use Motorbike identifier
+using Motorbike = EBike;
 
-// Yêu cầu thuê xe
+// Yêu cầu thuê EBike
 struct RentalRequest {
     std::string renterUsername;
-    std::string motorbikeLicensePlate;
+    std::string ebikeLicensePlate; // primary field
+    std::string motorbikeLicensePlate; // backward compatibility
     std::time_t fromDate;
     std::time_t toDate;
     bool isAccepted;
@@ -68,8 +71,10 @@ struct User {
     int creditPoints;
     int rating; // trung bình
     std::vector<Rating> ratings;
-    std::string ownedMotorbikeLicense; // nếu có
-    std::string rentingMotorbikeLicense; // nếu đang thuê
+    std::string ownedEbikeLicense; // nếu có (was ownedMotorbikeLicense)
+    std::string rentingEbikeLicense; // nếu đang thuê (was rentingMotorbikeLicense)
+    std::string ownedMotorbikeLicense; // backward compatibility
+    std::string rentingMotorbikeLicense; // backward compatibility
     std::vector<DepositTransaction> depositHistory;
 };
 

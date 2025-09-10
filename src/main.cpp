@@ -89,7 +89,7 @@ void showMainMenu() {
     std::cout << "\n";
     
     std::cout << "==========================================\n";
-    std::cout << "|      MOTORBIKE RENTAL APPLICATION       |\n";
+    std::cout << "|      EBIKE RENTAL APPLICATION           |\n";
     std::cout << "==========================================\n";
     std::cout << "| 1. Guest                                |\n";
     std::cout << "| 2. Member                               |\n";
