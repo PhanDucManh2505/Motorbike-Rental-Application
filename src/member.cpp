@@ -698,7 +698,7 @@ void searchAndRentEbike(const User& member) {
         return;
     }
 
-    // Hiển thị danh sách xe
+    // Show available bikes
     std::cout << "\n============================ AVAILABLE EBIKES ==============================\n";
     std::cout << "| No | Brand/Model      | Color   | CC   | Year | Plate     | City   | Price      |\n";
     std::cout << "-------------------------------------------------------------------------------\n";
@@ -970,3 +970,7 @@ void cancelOrReturnRentedEbike(User& member){
         std::string dummy; std::getline(std::cin, dummy);
     }
 }
+
+
+
+
