@@ -1,4 +1,4 @@
-// Chuyển time_t/timestamp sang chuỗi ngày giờ dd/mm/yyyy HH:MM
+// Change time_t/timestamp to dd/mm/yyyy HH:MM
 #include <string>
 #include <ctime>
 std::string formatTimestamp(time_t t);
@@ -6,9 +6,9 @@ std::string formatTimestamp(time_t t);
 #include <string>
 #pragma once
 
-// Chuyển "yyyy-mm-dd" thành time_t, trả về -1 nếu lỗi
+// Change "yyyy-mm-dd" to time_t, return -1 if invalid
 time_t parseDate(const std::string& dateStr);
-// Kiểm tra định dạng yyyy-mm-dd và ngày hợp lệ
+// Check if yyyy-mm-dd format is valid
 bool isValidDate(const std::string& dateStr);
 #pragma once
 #include <string>

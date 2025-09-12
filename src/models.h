@@ -14,10 +14,10 @@ struct DepositTransaction {
 #include <vector>
 #include <ctime>
 
-// Enum cho loại người dùng
+// Enum for user roles
 enum class UserRole { Guest, Member, Admin };
 
-// Đánh giá (rating)
+// Rating
 struct Rating {
     int score; // 1-5
     std::string comment;
@@ -25,7 +25,7 @@ struct Rating {
     std::time_t timestamp;
 };
 
-// Thông tin EBike
+// Information about an EBike
 struct EBike {
     std::string brand;
     std::string model;
@@ -34,7 +34,7 @@ struct EBike {
     int year;
     std::string licensePlate;
     std::string ownerUsername;
-    std::string city; // HCMC hoặc Hanoi
+    std::string city; // HCMC or HANOI
     int pricePerDayCP;
     int minRenterRating;
     std::vector<Rating> ratings;
@@ -44,7 +44,7 @@ struct EBike {
 // backward compatibility: some files still use Motorbike identifier
 using Motorbike = EBike;
 
-// Yêu cầu thuê EBike
+// Rental request
 struct RentalRequest {
     std::string renterUsername;
     std::string ebikeLicensePlate; // primary field
@@ -52,27 +52,27 @@ struct RentalRequest {
     std::time_t fromDate;
     std::time_t toDate;
     bool isAccepted;
-    int rating = 0; // 1-5, 0 nếu chưa đánh giá
+    int rating = 0; // 1-5 (if rated) else 0 if not rated
     std::string comment;
 };
 
-// Thông tin người dùng
+//  User information
 struct User {
     std::string username;
     std::string password;
     std::string fullName;
     std::string email;
     std::string phone;
-    std::string idType; // CCCD/Hộ chiếu
+    std::string idType; // e.g., CMND, CCCD, Passport
     std::string idNumber;
     std::string licenseNumber;
-    std::time_t licenseExpiry; // 0 nếu không có
+    std::time_t licenseExpiry; // timestamp, 0 if no license
     UserRole role;
     int creditPoints;
-    int rating; // trung bình
+    int rating; // average rating from 1-5
     std::vector<Rating> ratings;
-    std::string ownedEbikeLicense; // nếu có (was ownedMotorbikeLicense)
-    std::string rentingEbikeLicense; // nếu đang thuê (was rentingMotorbikeLicense)
+    std::string ownedEbikeLicense; // if have (was ownedMotorbikeLicense)
+    std::string rentingEbikeLicense; // if in renting (was rentingMotorbikeLicense)
     std::string ownedMotorbikeLicense; // backward compatibility
     std::string rentingMotorbikeLicense; // backward compatibility
     std::vector<DepositTransaction> depositHistory;

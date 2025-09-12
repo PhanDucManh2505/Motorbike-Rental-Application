@@ -11,10 +11,10 @@ struct AdminAccount {
     std::string phone;
 };
 
-// Đọc danh sách admin từ file admin.csv
+// Read admin accounts from admins.csv
 std::vector<AdminAccount> loadAdminAccounts(const std::string& filename);
 
-// Đăng nhập admin, trả về true nếu thành công và trả về thông tin admin
+// login as admin and return the logged-in admin account
 bool adminLogin(AdminAccount& outAdmin);
 
 void adminMenuLoop();

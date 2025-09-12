@@ -23,7 +23,7 @@ namespace DataManager {
             if (isFirstLine) { isFirstLine = false; continue; } // Skip header
             auto tokens = split(line, ',');
             if (tokens.size() < 12) continue;
-            // Kiểm tra các trường số hợp lệ trước khi chuyển đổi
+            // Check numeric fields are valid before conversion
             bool valid = true;
             for (int idx : {8,9,10,11}) {
                 if (tokens[idx].empty() || tokens[idx].find_first_not_of("0123456789") != std::string::npos) {
@@ -54,7 +54,7 @@ namespace DataManager {
 
     void saveUsers(const std::string& filename, const std::vector<User>& users) {
         std::ofstream file(filename);
-        // Ghi dòng tiêu đề (header)
+        // Write header
         file << "username,password,fullName,email,phone,idType,idNumber,licenseNumber,licenseExpiry,role,creditPoints,rating,ownedEbikeLicense,rentingEbikeLicense\n";
         for (const auto& u : users) {
             file << u.username << ',' << u.password << ',' << u.fullName << ',' << u.email << ','
@@ -73,7 +73,7 @@ namespace DataManager {
             if (isFirstLine) { isFirstLine = false; continue; } // Skip header
             auto tokens = split(line, ',');
             if (tokens.size() < 10) continue;
-            // Kiểm tra các trường số hợp lệ trước khi chuyển đổi
+            // Check numeric fields are valid before conversion
             bool valid = true;
             for (int idx : {3,4,8,9}) {
                 if (tokens[idx].empty() || tokens[idx].find_first_not_of("0123456789") != std::string::npos) {
@@ -143,7 +143,7 @@ namespace DataManager {
 
     void saveRentalRequests(const std::string& filename, const std::vector<RentalRequest>& reqs) {
         std::ofstream file(filename);
-        // Ghi header mới
+        // Write new header
         file << "renterUsername,ebikeLicensePlate,fromDate,toDate,isAccepted,rating,comment\n";
         for (const auto& r : reqs) {
             file << r.renterUsername << ',' << r.ebikeLicensePlate << ',' << r.fromDate << ','

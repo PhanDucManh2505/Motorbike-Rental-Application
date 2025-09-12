@@ -30,10 +30,10 @@ void guestMenuLoop() {
         showGuestMenu();
         std::string input;
         std::getline(std::cin, input);
-        // Xóa khoảng trắng đầu/cuối
+        // Delet leading/trailing whitespace
         input.erase(0, input.find_first_not_of(" \t\n\r"));
         input.erase(input.find_last_not_of(" \t\n\r") + 1);
-        // Kiểm tra input là số hợp lệ tuyệt đối
+        // Check if input is all digits
         bool valid = !input.empty();
         for (char c : input) {
             if (!isdigit(c)) {
@@ -45,7 +45,7 @@ void guestMenuLoop() {
             std::cout << "Invalid option. Please enter a number.\n";
             continue;
         }
-        // Đảm bảo input không rỗng và chỉ toàn số, mới chuyển đổi
+        // Make sure to convert string to int safely
         choice = 0;
         for (char c : input) {
             choice = choice * 10 + (c - '0');
@@ -53,7 +53,7 @@ void guestMenuLoop() {
         switch (choice) {
 
             case 1: {
-                // Đăng ký member trực tiếp trong guest.cpp
+                // Register as a new member and save to users.csv
                 std::vector<User> users = DataManager::loadUsers("users.csv");
                 User newUser;
                 std::cout << "\n--- Member Registration ---\n";
@@ -80,7 +80,7 @@ void guestMenuLoop() {
                 while (true) {
                     std::cout << "Password: ";
                     std::getline(std::cin, newUser.password);
-                    // Kiểm tra password trùng
+                    // Check password strength and uniqueness
                     bool pwExists = false;
                     for (const auto& u : users) {
                         if (u.password == newUser.password) { pwExists = true; break; }
@@ -236,7 +236,7 @@ void guestMenuLoop() {
                     std::cout << "Invalid date format! Please enter as dd/mm/yyyy.\n";
                 }
                 newUser.role = UserRole::Member;
-                // Bắt buộc nạp >=20 CP khi đăng ký
+                // Make sure they deposit at least 20 CP to activate account
                 int depositCP = 0;
                 while (true) {
                     std::cout << "Initial deposit (>=20 CP, 1 CP = 1 USD): ";
@@ -257,13 +257,14 @@ void guestMenuLoop() {
                 newUser.rating = 3;
                 users.push_back(newUser);
                 DataManager::saveUsers("users.csv", users);
-                // Ghi lịch sử nạp CP khi đăng ký
+                // Write to deposit history
                 std::ofstream ofs("deposit_history.csv", std::ios::app);
                 std::time_t now = std::time(nullptr);
                 ofs << newUser.username << "," << depositCP << "," << now << "\n";
                 ofs.close();
                 std::cout << "Registration successful! You have " << depositCP << " CP. Your initial renter rating is 3. You can now log in as a member.\n";
-                // Làm sạch buffer sau khi đăng ký xong
+                // Clear input buffer
+                std::cout << "Press Enter to return to menu...";
                 std::cin.clear();
                 if (std::cin.rdbuf()->in_avail() > 0) std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                 break;

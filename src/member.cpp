@@ -11,27 +11,27 @@
 #include <fstream>
 #include <sstream>
 
-// Prototype cho menu thành viên
+// Prototype for member menu and related functions
 void showMemberMenu(const std::string& username);
 void registerEbikeForRent(const std::string& ownerUsername);
 void searchAndRentEbike(const User& member);
 void approveRentalRequests(const std::string& ownerUsername);
 void cancelOrReturnRentedEbike(User& member);
-// Prototype cho các hàm kiểm tra/ngày
+// Helper functions for date validation and parsing
 bool isValidDateDMY(const std::string& dateStr);
 time_t parseDateDMY(const std::string& dateStr);
-// Prototype cho các hàm quản lý hồ sơ
+// Profile management functions
 void manageProfile(User& member);
 void viewProfile(const User& member);
 void updateProfile(User& member);
 void changePassword(User& member);
 void depositCreditPoints(User& member);
 void viewDepositHistory(const User& member);
-// Prototype cho các hàm rental history & unregister
+// Prototype for viewing rental history and ratings
 void viewRentalHistoryAndRatings(const User& member);
 void unregisterEbike(const std::string& ownerUsername);
 
-// Vòng lặp menu thành viên: đăng nhập, chọn chức năng
+// Loop menu for member
 
 void memberMenuLoop() {
     std::vector<User> users = DataManager::loadUsers("users.csv");
@@ -89,7 +89,7 @@ void memberMenuLoop() {
     } while (choice != 8);
 }
 
-// Xem lịch sử thuê và xếp hạng
+// See rental history and ratings
 void viewRentalHistoryAndRatings(const User& member) {
     std::cout << "\n--- Rental History & Ratings ---\n";
     std::vector<RentalRequest> requests = DataManager::loadRentalRequests("rental_requests.csv");
@@ -113,7 +113,7 @@ void viewRentalHistoryAndRatings(const User& member) {
     std::string dummy; std::getline(std::cin, dummy);
 }
 
-// Gỡ đăng EBike
+// Unregister EBike
 void unregisterEbike(const std::string& ownerUsername) {
     std::vector<EBike> bikes = DataManager::loadMotorbikes("ebikes.csv");
     auto it = std::find_if(bikes.begin(), bikes.end(), [&](const EBike& b) {
@@ -149,7 +149,7 @@ void unregisterEbike(const std::string& ownerUsername) {
     std::cout << "Press Enter to continue...";
     std::string dummy; std::getline(std::cin, dummy);
 }
-// Menu quản lý hồ sơ
+// Profile management menu
 void manageProfile(User& member) {
     int opt = 0;
     do {
@@ -191,7 +191,7 @@ void manageProfile(User& member) {
         }
     } while (opt != 6);
 }
-// Xem thông tin hồ sơ
+// View profile
 void viewProfile(const User& member) {
     std::cout << "\n--- Profile Information ---\n";
     std::cout << "Username: " << member.username << "\n";
@@ -207,11 +207,11 @@ void viewProfile(const User& member) {
     std::cout << "Press Enter to continue...";
     std::string dummy; std::getline(std::cin, dummy);
 }
-//  Cập nhật hồ sơ
+// Update profile
 void updateProfile(User& member) {
     std::cout << "\n--- Update Profile ---\n";
     std::vector<User> users = DataManager::loadUsers("users.csv");
-    // Cập nhật từng trường, trừ username
+    // Update every field except username and role
     std::cout << "Current full name: " << member.fullName << "\nNew full name (leave blank to keep): ";
     std::string input;
     std::getline(std::cin, input);
@@ -220,7 +220,7 @@ void updateProfile(User& member) {
     std::cout << "Current email: " << member.email << "\nNew email (leave blank to keep): ";
     std::getline(std::cin, input);
     if (!input.empty()) {
-        // Kiểm tra trùng email
+        // Check if email is valid
         bool exists = false;
         for (const auto& u : users) {
             if (u.username != member.username && u.email == input) { exists = true; break; }
@@ -242,7 +242,7 @@ void updateProfile(User& member) {
                 if (!isdigit(c)) { valid = false; reason = "Phone must contain only digits."; break; }
             }
         }
-        // Kiểm tra trùng phone
+        // Check duplicate phone
         bool exists = false;
         for (const auto& u : users) {
             if (u.username != member.username && u.phone == input) { exists = true; break; }
@@ -280,7 +280,7 @@ void updateProfile(User& member) {
         }
     }
 
-    // Xác nhận trước khi lưu
+    // Confirm before saving
     std::cout << "\nAre you sure you want to save changes? (y/n): ";
     std::string confirm; std::getline(std::cin, confirm);
     if (confirm == "y" || confirm == "Y") {
@@ -298,7 +298,7 @@ void updateProfile(User& member) {
         std::cout << "Update cancelled. No changes saved.\n";
     }
 }
-// Đổi mật khẩu
+// Change password
 void changePassword(User& member) {
     std::cout << "\n--- Change Password ---\n";
     std::vector<User> users = DataManager::loadUsers("users.csv");
@@ -309,7 +309,7 @@ void changePassword(User& member) {
         std::cout << "[!] Incorrect current password. Password not changed.\n";
         return;
     }
-    // Nhập password mới
+    // Enter new password
     while (true) {
         std::cout << "Enter new password: ";
         std::getline(std::cin, newPw);
@@ -335,7 +335,8 @@ void changePassword(User& member) {
         }
         break;
     }
-    // Xác nhận trước khi lưu
+    // Confirm before changing
+    std::cout << "\nYou are about to change your password.\n";
     std::cout << "Are you sure you want to change your password? (y/n): ";
     std::string confirm; std::getline(std::cin, confirm);
     if (confirm == "y" || confirm == "Y") {
@@ -354,7 +355,7 @@ void changePassword(User& member) {
         std::cout << "[!] Password change cancelled. No changes made.\n";
     }
 }
-// Nạp điểm tín dụng
+// Deposit credit points
 void depositCreditPoints(User& member) {
     std::cout << "\n--- Deposit Credit Points ---\n";
     std::vector<User> users = DataManager::loadUsers("users.csv");
@@ -380,14 +381,15 @@ void depositCreditPoints(User& member) {
         }
         break;
     }
-    // Xác nhận trước khi nạp
+    // Confirm deposit
+    std::cout << "\nYou are about to deposit " << amount << " CP.\n";
     std::cout << "Are you sure you want to deposit " << amount << " CP? (y/n): ";
     std::string confirm; std::getline(std::cin, confirm);
     if (confirm != "y" && confirm != "Y") {
         std::cout << "Deposit cancelled.\n";
         return;
     }
-    // Cộng CP và lưu lại
+    // Perform deposit
     member.creditPoints += amount;
     for (auto& u : users) {
         if (u.username == member.username) {
@@ -396,7 +398,7 @@ void depositCreditPoints(User& member) {
         }
     }
     DataManager::saveUsers("users.csv", users);
-    // Lưu lịch sử nạp CP
+    // Write to deposit history
     std::ofstream ofs("deposit_history.csv", std::ios::app);
     std::time_t now = std::time(nullptr);
     ofs << member.username << "," << amount << "," << now << "\n";
@@ -405,7 +407,7 @@ void depositCreditPoints(User& member) {
     std::cout << "Press Enter to continue...";
     std::string dummy; std::getline(std::cin, dummy);
 }
-// Xem lịch sử nạp điểm tín dụng
+// View deposit history
 void viewDepositHistory(const User& member) {
     std::cout << "\n--- Deposit History ---\n";
     std::ifstream ifs("deposit_history.csv");
@@ -434,10 +436,10 @@ void viewDepositHistory(const User& member) {
     std::string dummy; std::getline(std::cin, dummy);
 }
 
-// Hiển thị menu thành viên
+// Show member menu
 void showMemberMenu(const std::string& username) {
     std::cout << std::endl;
-    std::cout << "===============================================|" << std::endl;
+    std::cout << "================================================" << std::endl;
     std::cout << "|                MEMBER MENU                   |" << std::endl;
     std::cout << "===============================================|" << std::endl;
     std::cout << "| 1. Register an EBike for rent                |" << std::endl;
@@ -448,11 +450,11 @@ void showMemberMenu(const std::string& username) {
     std::cout << "| 6. Approve rental requests (for owners)      |" << std::endl;
     std::cout << "| 7. Cancel/Return rented EBike                |" << std::endl;
     std::cout << "| 8. Logout                                    |" << std::endl;
-    std::cout << "===============================================|" << std::endl;
+    std::cout << "================================================" << std::endl;
     std::cout << "Welcome, " << username << "!" << std::endl;
     std::cout << "Please select an option: ";
 }
-// Hàm đăng ký EBike cho thuê
+// Register an EBike for rent
 void registerEbikeForRent(const std::string& ownerUsername) {
     std::vector<EBike> bikes = DataManager::loadMotorbikes("ebikes.csv");
     // Check if member already registered a bike
@@ -570,7 +572,7 @@ void registerEbikeForRent(const std::string& ownerUsername) {
         }
         break;
     }
-    // Nhập khoảng thời gian cho thuê
+    // Booked periods
     std::string fromDateStr, toDateStr;
     time_t fromDate, toDate;
     // ...existing code...
@@ -615,12 +617,12 @@ void registerEbikeForRent(const std::string& ownerUsername) {
     DataManager::saveMotorbikes("ebikes.csv", bikes);
     std::cout << "EBike registered successfully!\n";
 }
-// Xem toàn bộ EBikes hoặc tìm kiếm, gửi yêu cầu thuê
+// Search and rent an EBike
 void searchAndRentEbike(const User& member) {
-    // Load danh sách xe và request
+    // Load all rental requests and bikes
     std::vector<RentalRequest> allRequests = DataManager::loadRentalRequests("rental_requests.csv");
     std::vector<EBike> bikes = DataManager::loadMotorbikes("ebikes.csv");
-    // Kiểm tra nếu user đã có rental request được chấp nhận và chưa hết hạn thì không cho thuê tiếp
+    // Check if member has an active rental already (accepted request with toDate >= today)
     time_t now = std::time(nullptr);
     for (const auto& req : allRequests) {
         if (req.renterUsername == member.username && req.isAccepted && req.toDate >= now) {
@@ -654,7 +656,7 @@ void searchAndRentEbike(const User& member) {
         return;
     }
 
-    // Nhập khoảng thời gian thuê
+    // Enter rental period
     std::string fromDateStr, toDateStr;
     time_t fromDate, toDate;
     while (true) {
@@ -678,7 +680,7 @@ void searchAndRentEbike(const User& member) {
         break;
     }
 
-    // Lọc xe còn trống trong khoảng thời gian
+    // Check availability for the period
     std::vector<EBike> availableBikes;
     for (const auto& m : filtered) {
         bool isRented = false;
@@ -696,7 +698,7 @@ void searchAndRentEbike(const User& member) {
         return;
     }
 
-    // Hiển thị danh sách xe
+    // Show available bikes
     std::cout << "\n============================ AVAILABLE EBIKES ==============================\n";
     std::cout << "| No | Brand/Model      | Color   | CC   | Year | Plate     | City   | Price      |\n";
     std::cout << "-------------------------------------------------------------------------------\n";
@@ -714,7 +716,7 @@ void searchAndRentEbike(const User& member) {
     }
     std::cout << "-------------------------------------------------------------------------------\n";
 
-    // Người dùng chọn xe
+    // User selects a bike
     std::cout << "\nEnter the number of the EBike to rent (0 to cancel): ";
     std::string sel; std::getline(std::cin, sel);
     int idx = safeStringToInt(sel) - 1;
@@ -723,7 +725,7 @@ void searchAndRentEbike(const User& member) {
     }
     const auto& chosen = availableBikes[idx];
 
-    // Kiểm tra điều kiện
+    // Check member eligibility
     int days = (int)((toDate - fromDate) / (60*60*24)) + 1;
     int totalPrice = chosen.pricePerDayCP * days;
     if (member.creditPoints < totalPrice) {
@@ -736,7 +738,7 @@ void searchAndRentEbike(const User& member) {
         std::cout << "You need a valid license to rent this EBike!\n"; return;
     }
 
-    // Tạo request mới
+    // Make rental request
     RentalRequest req;
     req.renterUsername = member.username;
     req.ebikeLicensePlate = chosen.licensePlate;
@@ -750,7 +752,7 @@ void searchAndRentEbike(const User& member) {
     std::cout << "Rental request sent!\n";
 }
 
-// Hàm kiểm tra định dạng dd/mm/yyyy và hợp lệ ngày
+// Check if date string is valid dd/mm/yyyy
 bool isValidDateDMY(const std::string& dateStr) {
     if (dateStr.size() != 10 || dateStr[2] != '/' || dateStr[5] != '/') return false;
     int d, m, y;
@@ -762,7 +764,7 @@ bool isValidDateDMY(const std::string& dateStr) {
     if (d > dim) return false;
     return true;
 }
-// Chuyển chuỗi dd/mm/yyyy thành time_t
+// Parse date string dd/mm/yyyy to time_t
 time_t parseDateDMY(const std::string& dateStr) {
     if (!isValidDateDMY(dateStr)) return -1;
     int d, m, y;
@@ -774,7 +776,7 @@ time_t parseDateDMY(const std::string& dateStr) {
     tm.tm_hour = 0; tm.tm_min = 0; tm.tm_sec = 0;
     return mktime(&tm);
 }
-// Duyệt yêu cầu thuê xe (chủ xe)
+// Format timestamp to readable string
 void approveRentalRequests(const std::string& ownerUsername) {
     std::vector<EBike> bikes = DataManager::loadMotorbikes("ebikes.csv");
     auto it = std::find_if(bikes.begin(), bikes.end(), [&](const EBike& b) {
@@ -797,13 +799,13 @@ void approveRentalRequests(const std::string& ownerUsername) {
             std::cout << "Approve this request? (y/n): ";
             std::string confirm; std::getline(std::cin, confirm);
             if (confirm == "y" || confirm == "Y") {
-                // Tính số ngày thuê (tối thiểu 1 ngày)
+                // Calculate rental price
                 int days = 1;
                 if (requests[i].toDate > requests[i].fromDate) {
                     days = (int)((requests[i].toDate - requests[i].fromDate) / (60*60*24)) + 1;
                 }
                 int price = it->pricePerDayCP * days;
-                // Trừ CP của người thuê
+                // Deduct credit points from renter
                 for (auto& u : users) {
                     if (u.username == requests[i].renterUsername) {
                         if (u.creditPoints < price) {
@@ -815,7 +817,7 @@ void approveRentalRequests(const std::string& ownerUsername) {
                     }
                 }
                 DataManager::saveUsers("users.csv", users);
-                // Đánh dấu xe đang được thuê đúng giai đoạn
+                // Mark request as accepted
                 it->bookedPeriods.push_back({requests[i].fromDate, requests[i].toDate});
                 DataManager::saveMotorbikes("ebikes.csv", bikes);
                 requests[i].isAccepted = true;
@@ -831,16 +833,16 @@ void approveRentalRequests(const std::string& ownerUsername) {
                         rofs.close();
                     }
                 }
-                // Tự động từ chối các yêu cầu chồng lấn thời gian
+                // Remove overlapping pending requests for the same EBike
                 for (size_t j = 0; j < requests.size(); ++j) {
                     if (j == i) continue;
                     if (requests[j].ebikeLicensePlate == it->licensePlate && !requests[j].isAccepted) {
-                        // Kiểm tra chồng lấn thời gian
+                        // Check if periods overlap
                         bool overlap = !(requests[j].toDate < requests[i].fromDate || requests[j].fromDate > requests[i].toDate);
                         if (overlap) {
-                            // Xóa yêu cầu chồng lấn
+                            // Remove this request
                             requests.erase(requests.begin() + j);
-                            if (j < i) --i; // Nếu xóa trước i thì giảm i để không bỏ qua phần tử
+                            if (j < i) --i; // adjust i since we removed an earlier element
                             --j;
                         }
                     }
@@ -860,13 +862,13 @@ void approveRentalRequests(const std::string& ownerUsername) {
     std::string dummy; std::getline(std::cin, dummy);
 }
 
-// Hủy hoặc trả EBike đã thuê (người thuê)
+// Cancel or return rented EBike (or cancel pending request)
 void cancelOrReturnRentedEbike(User& member){
     std::vector<RentalRequest> requests = DataManager::loadRentalRequests("rental_requests.csv");
     std::vector<EBike> bikes = DataManager::loadMotorbikes("ebikes.csv");
     bool found = false;
 
-    // Trường hợp đang thuê xe (isAccepted == true)
+    // If request is accepted (isAccepted == true)
     for (size_t i = 0; i < requests.size(); ++i) {
         if (requests[i].renterUsername == member.username && requests[i].isAccepted) {
             found = true;
@@ -876,7 +878,7 @@ void cancelOrReturnRentedEbike(User& member){
             if (confirm == "y" || confirm == "Y") {
                 std::cout << "EBike returned successfully!\n";
 
-                // Đánh giá EBike
+                // rating EBikes
                 std::cout << "Would you like to rate this EBike? (y/n): ";
                 std::string rateOpt; std::getline(std::cin, rateOpt);
                 if (rateOpt == "y" || rateOpt == "Y") {
@@ -905,7 +907,7 @@ void cancelOrReturnRentedEbike(User& member){
                         }
                     }
 
-                    // Cập nhật rating trung bình user
+                    // Update member's average rating
                     int sum = 0, count = 0;
                     for (const auto& req : requests) {
                         if (req.renterUsername == member.username && req.rating > 0) {
@@ -929,7 +931,8 @@ void cancelOrReturnRentedEbike(User& member){
                     std::cout << "Thank you for your rating!\n";
                 }
 
-                // ❌ Xóa luôn request sau khi return
+                // ❌ Remove the rental request
+                // Also remove the EBike record from Rental.csv to mark it as available again
                 requests.erase(requests.begin() + i);
                 DataManager::saveRentalRequests("rental_requests.csv", requests);
             } else {
@@ -941,7 +944,7 @@ void cancelOrReturnRentedEbike(User& member){
         }
     }
 
-    // Trường hợp có yêu cầu pending (isAccepted == false)
+    // if request is pending (isAccepted == false)
     for (size_t i = 0; i < requests.size(); ++i) {
         if (requests[i].renterUsername == member.username && !requests[i].isAccepted) {
             found = true;
@@ -967,7 +970,3 @@ void cancelOrReturnRentedEbike(User& member){
         std::string dummy; std::getline(std::cin, dummy);
     }
 }
-
-
-
-

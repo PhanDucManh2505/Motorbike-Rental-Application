@@ -18,10 +18,10 @@ int main() {
         showMainMenu();
         std::string input;
         std::getline(std::cin, input);
-        // Xóa khoảng trắng đầu/cuối
+        // Delet leading/trailing whitespace
         input.erase(0, input.find_first_not_of(" \t\n\r"));
         input.erase(input.find_last_not_of(" \t\n\r") + 1);
-        // Kiểm tra input là số hợp lệ tuyệt đối
+        // Check if input is all digits
         bool valid = !input.empty();
         for (char c : input) {
             if (!isdigit(c)) {
@@ -33,7 +33,7 @@ int main() {
             std::cout << "Invalid option. Please enter a number.\n";
             continue;
         }
-        // Đảm bảo input không rỗng và chỉ toàn số, mới chuyển đổi
+        // Make sure to convert string to int safely
         choice = 0;
         for (char c : input) {
             choice = choice * 10 + (c - '0');

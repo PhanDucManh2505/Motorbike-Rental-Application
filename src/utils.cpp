@@ -1,4 +1,4 @@
-// Chuyển time_t/timestamp sang chuỗi ngày giờ dd/mm/yyyy HH:MM
+// Change time_t/timestamp to dd/mm/yyyy HH:MM
 #include <string>
 #include <ctime>
 std::string formatTimestamp(time_t t) {

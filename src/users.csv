@@ -1,4 +1,5 @@
 username,password,fullName,email,phone,idType,idNumber,licenseNumber,licenseExpiry,role,creditPoints,rating,ownedEbikeLicense,rentingEbikeLicense
-1,Manh123!,Phan Duc Manh,S4124156@rmit.edu.vn,0903295336,CCCD,111112222333,12,20300525,1,25,5,,
+1,Manh123!,Phan Duc Manh,S4124156@rmit.edu.vn,0903295336,CCCD,111112222333,12,20300525,1,145,5,,
 2,Manh123!!,Nguyen,mono@123rmit.edu,3636363636,CCCD,123456789123,36,20300525,1,20,3,,
 4,Manh1234!,quy anh,ANh@rmit.edu.vn,123456789,CCCD,555879874231,36,20300525,1,850,5,,
+Thanh,Thanh123!,Huyen Thanh,Thanh@gmail.gmailcom,0987870808,CCCD,123456789012,,0,1,30,3,,
