@@ -8,6 +8,26 @@
 #include "data_manager.h"
 #include "models.h"
 
+// Additions
+#include <limits>
+using namespace std;
+
+// Gets a valid integer choice from the user within the specified range
+int getChoice(int min, int max){
+    int n;
+    while(true){
+        cin >> n;
+        if(cin.fail() || n < min || n > max){
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Invalid input. Please enter a number between " << min << " and " << max << ": ";
+        } else {
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            return n;
+        }
+    }
+}
+
 void adminMenuLoop() {
     int choice = 0;
     bool running = true;
@@ -22,7 +42,8 @@ void adminMenuLoop() {
     std::cout << "| 4. Logout                                     |" << std::endl;
     std::cout << "+===============================================+" << std::endl;
     std::cout << "Please select an option: ";
-        std::string input;
+        
+        /*std::string input;
         std::getline(std::cin, input);
         // Delet leading/trailing whitespace
         input.erase(0, input.find_first_not_of(" \t\n\r"));
@@ -44,11 +65,13 @@ void adminMenuLoop() {
         for (char c : input) {
             choice = choice * 10 + (c - '0');
         }
+            */
+        choice = getChoice(1, 4);
     switch (choice) {
             case 1: {
                 // Display all users from users.csv
                 auto users = DataManager::loadUsers("users.csv");
-                std::cout << "\n========================================== ALL USERS ================================================\n";
+                std::cout << "\n============================================ ALL USERS ================================================\n";
                 std::cout << "| No | Username    | Full Name          | Email                | Phone       | Role   | CP   | Rating |\n";
                 std::cout << "-------------------------------------------------------------------------------------------------------\n";
                 int idx = 1;
