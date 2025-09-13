@@ -13,7 +13,7 @@
 using namespace std;
 
 // Gets a valid integer choice from the user within the specified range
-int getChoice(int min, int max){
+int getAdChoice(int min, int max){
     int n;
     while(true){
         cin >> n;
@@ -66,7 +66,7 @@ void adminMenuLoop() {
             choice = choice * 10 + (c - '0');
         }
             */
-        choice = getChoice(1, 4);
+        choice = getAdChoice(1, 4);
     switch (choice) {
             case 1: {
                 // Display all users from users.csv

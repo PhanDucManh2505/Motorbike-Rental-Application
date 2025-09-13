@@ -31,6 +31,22 @@ void viewDepositHistory(const User& member);
 void viewRentalHistoryAndRatings(const User& member);
 void unregisterEbike(const std::string& ownerUsername);
 
+// Gets a valid integer choice from the user within the specified range
+int getMemChoice(int min, int max){
+    int n;
+    while(true){
+        std::cin >> n;
+        if(std::cin.fail() || n < min || n > max){
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cout << "Invalid input. Please enter a number between " << min << " and " << max << ": ";
+        } else {
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            return n;
+        }
+    }
+}
+
 // Loop menu for member
 
 void memberMenuLoop() {
@@ -50,14 +66,17 @@ void memberMenuLoop() {
         std::cout << "Login failed!\n";
         return;
     }
-    int choice = 0;
+    int choice;
     do {
         showMemberMenu(member->username);
+        /*
         std::string input;
         std::getline(std::cin, input);
         input = trim(input);
         if (!isAllDigits(input)) { std::cout << "Invalid option!\n"; continue; }
         choice = safeStringToInt(input);
+        */
+        choice = getMemChoice(1, 8);
         switch (choice) {
             case 1:
                 registerEbikeForRent(member->username);
@@ -151,7 +170,7 @@ void unregisterEbike(const std::string& ownerUsername) {
 }
 // Profile management menu
 void manageProfile(User& member) {
-    int opt = 0;
+    int opt;
     do {
         std::cout << "\n========================================\n";
         std::cout << "|         MANAGE PROFILE MENU             |\n";
@@ -164,9 +183,12 @@ void manageProfile(User& member) {
         std::cout << "| 6. Back                                 |\n";
         std::cout << "========================================\n";
         std::cout << "Select option: ";
+        /*
         std::string input; std::getline(std::cin, input);
         if (!isAllDigits(input)) { std::cout << "Invalid option!\n"; continue; }
         opt = safeStringToInt(input);
+        */
+        opt = getMemChoice(1, 6);
         switch (opt) {
             case 1:
                 viewProfile(member);

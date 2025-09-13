@@ -12,6 +12,22 @@
 #include <fstream>
 #include <ctime>
 
+// Gets a valid integer choice from the user within the specified range
+int getGuestChoice(int min, int max){
+    int n;
+    while(true){
+        std::cin >> n;
+        if(std::cin.fail() || n < min || n > max){
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cout << "Invalid input. Please enter a number between " << min << " and " << max << ": ";
+        } else {
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            return n;
+        }
+    }
+}
+
 void showGuestMenu() {
     std::cout << std::endl;
     std::cout << "===============================================|" << std::endl;
@@ -25,9 +41,14 @@ void showGuestMenu() {
 }
 
 void guestMenuLoop() {
-    int choice = 0;
+    int choice;
+    
     do {
+        
+       
         showGuestMenu();
+        choice = getGuestChoice(1, 3);
+        /*
         std::string input;
         std::getline(std::cin, input);
         // Delet leading/trailing whitespace
@@ -50,6 +71,8 @@ void guestMenuLoop() {
         for (char c : input) {
             choice = choice * 10 + (c - '0');
         }
+            */
+        
         switch (choice) {
 
             case 1: {
