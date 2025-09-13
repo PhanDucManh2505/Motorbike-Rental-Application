@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <fstream>
 #include <ctime>
+#include <cctype>
 
 // Gets a valid integer choice from the user within the specified range
 int getGuestChoice(int min, int max){
@@ -87,6 +88,11 @@ void guestMenuLoop() {
                     newUser.username = trim(newUser.username);
                     if (newUser.username.empty()) {
                         std::cout << "Username cannot be empty!\n";
+                        continue;
+                    }
+                    // Reject username containing any whitespace
+                    if (std::any_of(newUser.username.begin(), newUser.username.end(), [](unsigned char c){ return std::isspace(c); })) {
+                        std::cout << "Username cannot contain spaces or whitespace characters!\n";
                         continue;
                     }
                     bool exists = false;

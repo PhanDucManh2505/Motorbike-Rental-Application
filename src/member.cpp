@@ -54,6 +54,11 @@ void memberMenuLoop() {
     std::string username, password;
     std::cout << "\n--- Member Login ---\n";
     std::cout << "Username: "; std::getline(std::cin, username);
+    // Reject whitespace in username
+    if (std::any_of(username.begin(), username.end(), [](unsigned char c){ return std::isspace(c); })) {
+        std::cout << "Invalid username: username cannot contain spaces or whitespace characters.\n";
+        return;
+    }
     std::cout << "Password: "; std::getline(std::cin, password);
     User* member = nullptr;
     for (auto& u : users) {
